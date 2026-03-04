@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifecycle & Change Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #F7F3ED;
+            --surface:  rgba(247,243,237,0.92);
+            --border:   rgba(180,155,125,0.22);
+            --text:     #3D3025;
+            --text-mid: #8A7A6A;
+            --text-soft:#B0A090;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Nunito',sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            height:100vh;
+            overflow:hidden;
+        }
+        body::after {
+            content:'';
+            position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:50;
+        }
+
+        /* ── Header ── */
+        header {
+            display:flex; align-items:center; gap:2rem;
+            padding:0 2.5rem; height:64px;
+            background:var(--surface);
+            backdrop-filter:blur(16px);
+            border-bottom:1px solid var(--border);
+            position:relative; z-index:10;
+        }
+        .brand {
+            font-family:'Cormorant Garamond',serif;
+            font-size:1.05rem; font-weight:600;
+            letter-spacing:0.06em; color:var(--text-mid);
+            white-space:nowrap; flex-shrink:0;
+        }
+        .hdr-div { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+        .tabs { display:flex; gap:4px; }
+        .tab {
+            padding:7px 20px; border:none; border-radius:100px;
+            background:transparent;
+            font-family:'Nunito',sans-serif;
+            font-size:0.82rem; font-weight:600;
+            letter-spacing:0.025em; color:var(--text-mid); cursor:pointer;
+            transition:background .3s, color .3s;
+        }
+        .tab:hover { background:rgba(140,115,90,0.1); color:var(--text); }
+        .tab.active { background:var(--text); color:var(--bg); }
+        .course-title {
+            font-size:0.72rem; letter-spacing:0.06em;
+            color:var(--text-soft); white-space:nowrap;
+            overflow:hidden; text-overflow:ellipsis;
+            font-weight:400;
+        }
+
+        /* ── Canvas ── */
+        .canvas-wrap { width:100%; height:calc(100vh - 64px); position:relative; }
+        .tab-pane { display:none; position:absolute; inset:0; flex-direction:column; }
+        .tab-pane.active { display:flex; }
+
+        .map-svg-wrap { flex:1; min-height:0; position:relative; overflow:hidden; }
+        .map-svg-wrap svg { width:100%; height:100%; }
+
+        /* ── Key Dimensions panel ── */
+        .dim-panel {
+            min-height:150px; height:auto; flex-shrink:0;
+            background:rgba(240,235,228,0.75);
+            border-top:1px solid var(--border);
+            display:flex; align-items:stretch;
+        }
+        .dim-section-title {
+            writing-mode:vertical-rl;
+            transform:rotate(180deg);
+            font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase;
+            color:var(--text-soft); padding:0 1.2rem;
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+            border-right:1px solid var(--border);
+        }
+        .dim-cards { display:flex; flex:1; flex-wrap:wrap; }
+        .dim-card {
+            flex:1; min-width:200px; display:flex; align-items:center; gap:14px;
+            padding:14px 1.5rem;
+            border-right:1px solid var(--border);
+        }
+        .dim-card:last-child { border-right:none; }
+        .dim-label {
+            font-family:'Cormorant Garamond',serif;
+            font-size:1.05rem; font-weight:600;
+            color:var(--text); margin-bottom:3px; letter-spacing:0.02em;
+        }
+        .dim-desc {
+            font-size:0.71rem; color:var(--text-mid);
+            line-height:1.55; font-weight:400;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="brand">Mind Maps</span>
+    <div class="hdr-div"></div>
+    <nav class="tabs">
+        <button class="tab active" onclick="switchTab('lifecycle',this)">Lifecycle Approaches</button>
+        <button class="tab"        onclick="switchTab('change',this)">Change Management</button>
+    </nav>
+    <div class="hdr-div"></div>
+    <span class="course-title">NUST MISIS &nbsp;·&nbsp; Change management and company lifecycles principles</span>
+</header>
+
+<div class="canvas-wrap">
+
+    <!-- LIFECYCLE TAB -->
+    <div id="lifecycle" class="tab-pane active">
+        <div class="map-svg-wrap"><svg id="lifecycleSvg"></svg></div>
+
+        <div class="dim-panel">
+            <div class="dim-section-title">Key Dimensions</div>
+            <div class="dim-cards">
+
+                <!-- Length -->
+                <div class="dim-card">
+                    <svg width="108" height="58" viewBox="0 0 108 58" style="flex-shrink:0">
+                        <defs>
+                            <linearGradient id="gL" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#C8D9C4" stop-opacity="0.85"/>
+                                <stop offset="100%" stop-color="#C8D9C4" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M4,52 C18,52 28,10 54,10 C80,10 90,52 104,52" fill="none" stroke="#8CB089" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M4,52 C18,52 28,10 54,10 C80,10 90,52 104,52 L104,55 L4,55 Z" fill="url(#gL)"/>
+                        <line x1="4" y1="55" x2="104" y2="55" stroke="#8CB089" stroke-width="1.2"/>
+                        <line x1="4"   y1="52" x2="4"   y2="58" stroke="#8CB089" stroke-width="1.2"/>
+                        <line x1="104" y1="52" x2="104" y2="58" stroke="#8CB089" stroke-width="1.2"/>
+                        <text x="54" y="57" text-anchor="middle" fill="#8CB089" font-size="7.5" font-family="Nunito" font-weight="600">← span →</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Length</div>
+                        <div class="dim-desc">Duration of the full lifecycle.<br>How long a company journeys<br>from birth to decline.</div>
+                    </div>
+                </div>
+
+                <!-- Height -->
+                <div class="dim-card">
+                    <svg width="108" height="58" viewBox="0 0 108 58" style="flex-shrink:0">
+                        <defs>
+                            <linearGradient id="gH" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#DDC4C4" stop-opacity="0.85"/>
+                                <stop offset="100%" stop-color="#DDC4C4" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M4,52 C20,52 26,5 54,5 C82,5 88,52 104,52" fill="none" stroke="#BC9090" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M4,52 C20,52 26,5 54,5 C82,5 88,52 104,52 L104,55 L4,55 Z" fill="url(#gH)"/>
+                        <line x1="54" y1="5"  x2="54" y2="52" stroke="#BC9090" stroke-width="1.2" stroke-dasharray="2.5,2"/>
+                        <line x1="50" y1="5"  x2="58" y2="5"  stroke="#BC9090" stroke-width="1.2"/>
+                        <line x1="50" y1="52" x2="58" y2="52" stroke="#BC9090" stroke-width="1.2"/>
+                        <text x="65" y="30" fill="#BC9090" font-size="7.5" font-family="Nunito" font-weight="600">↕ peak</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Height</div>
+                        <div class="dim-desc">Peak value reached at maturity.<br>Maximum revenues, profits or<br>market share attained.</div>
+                    </div>
+                </div>
+
+                <!-- Steepness -->
+                <div class="dim-card">
+                    <svg width="108" height="58" viewBox="0 0 108 58" style="flex-shrink:0">
+                        <defs>
+                            <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#CBBDD8" stop-opacity="0.85"/>
+                                <stop offset="100%" stop-color="#CBBDD8" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M4,52 C34,52 42,7 54,7 C66,7 74,52 104,52" fill="none" stroke="#9A88BC" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M4,52 C34,52 42,7 54,7 C66,7 74,52 104,52 L104,55 L4,55 Z" fill="url(#gS)"/>
+                        <path d="M8,50 L42,14" stroke="#9A88BC" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8,50 Q20,50 20,38" fill="none" stroke="#9A88BC" stroke-width="1.1"/>
+                        <text x="24" y="50" fill="#9A88BC" font-size="7.5" font-family="Nunito" font-weight="600">steep</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Steepness</div>
+                        <div class="dim-desc">Rate of growth and decline.<br>How sharply the company rises<br>and falls through stages.</div>
+                    </div>
+                </div>
+
+                <!-- Flattening -->
+                <div class="dim-card">
+                    <svg width="108" height="58" viewBox="0 0 108 58" style="flex-shrink:0">
+                        <defs>
+                            <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#EDD0A4" stop-opacity="0.85"/>
+                                <stop offset="100%" stop-color="#EDD0A4" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M4,50 C16,50 22,26 38,24 C52,22 62,22 78,24 C94,26 98,50 104,50" fill="none" stroke="#C8A870" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M4,50 C16,50 22,26 38,24 C52,22 62,22 78,24 C94,26 98,50 104,50 L104,55 L4,55 Z" fill="url(#gF)"/>
+                        <line x1="38" y1="24" x2="78" y2="24" stroke="#C8A870" stroke-width="1.5" stroke-dasharray="3,2"/>
+                        <text x="58" y="19" text-anchor="middle" fill="#C8A870" font-size="7.5" font-family="Nunito" font-weight="600">— plateau —</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Flattening</div>
+                        <div class="dim-desc">Breadth of the maturity plateau.<br>How long the company sustains<br>its peak before declining.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- CHANGE MANAGEMENT TAB -->
+    <div id="change" class="tab-pane">
+        <div class="map-svg-wrap"><svg id="changeSvg"></svg></div>
+    </div>
+
+</div>
+
+<script>
+// ─── Palette ──────────────────────────────────────────────────────────────────
+const P = {
+    center:   { fill:'#E8D5C0', stroke:'#C4A07A', text:'#4A3020' },
+    sage:     { fill:'#C8D9C4', stroke:'#8CB089', text:'#1E3C1C', cf:'#DDE9DA', cs:'#A8C8A4' },
+    rose:     { fill:'#DDC4C4', stroke:'#BC9090', text:'#4A2020', cf:'#EDD8D8', cs:'#CCA8A8' },
+    lavender: { fill:'#CBBDD8', stroke:'#9A88BC', text:'#30205A', cf:'#DDD5EC', cs:'#BAABCC' },
+    peach:    { fill:'#EDD0A4', stroke:'#C8A870', text:'#4A3010', cf:'#F5E3C8', cs:'#DABB8A' },
+    blue:     { fill:'#B8CDD8', stroke:'#7AAABB', text:'#1A3850', cf:'#CCDDE8', cs:'#9ABCC8' },
+    coral:    { fill:'#E8C0B0', stroke:'#C89078', text:'#4A2010', cf:'#F0D0C2', cs:'#D4A898' },
+    teal:     { fill:'#B8D5CE', stroke:'#78AAAA', text:'#1A3835', cf:'#CCEAE4', cs:'#98C5BE' },
+};
+
+// ─── Lifecycle Data ───────────────────────────────────────────────────────────
+const lifecycleData = {
+    center: { label:'Lifecycle\nApproaches', x:0, y:0 },
+    nodes: [
+        { label:'Damodaran\n6 Stages', x:-235, y:-168, color:'sage', children:[
+            { label:'Start-up',      x:-368, y:-282 },
+            { label:'Young Growth',  x:-422, y:-175 },
+            { label:'High Growth',   x:-395, y:-65  },
+            { label:'Mature Growth', x:-328, y:20   },
+            { label:'Mature Stable', x:-235, y:105  },
+            { label:'Decline',       x:-130, y:135  },
+        ]},
+        { label:'Adizes\n10 Stages', x:235, y:-168, color:'rose', children:[
+            { label:'Courtship',     x:378,  y:-298 },
+            { label:'Infancy',       x:432,  y:-212 },
+            { label:'Go-Go',         x:455,  y:-120 },
+            { label:'Adolescence',   x:438,  y:-28  },
+            { label:'Prime',         x:392,  y:55   },
+            { label:'The Fall',      x:325,  y:128  },
+            { label:'Aristocracy',   x:244,  y:185  },
+            { label:'Recrimination', x:154,  y:218  },
+            { label:'Bureaucracy',   x:60,   y:218  },
+            { label:'Death',         x:-35,  y:190  },
+        ]},
+        { label:'Miller-Friesen\n5 Stages', x:0, y:-255, color:'lavender', children:[
+            { label:'Birth',    x:-118, y:-362 },
+            { label:'Growth',   x:-44,  y:-385 },
+            { label:'Maturity', x:34,   y:-382 },
+            { label:'Revival',  x:110,  y:-355 },
+            { label:'Decline',  x:172,  y:-312 },
+        ]},
+    ]
+};
+
+// ─── Change Management Data (from Lecture 4 PDF) ─────────────────────────────
+const changeData = {
+    center: { label:'Change\nManagement\nTheories', x:0, y:0 },
+    nodes: [
+        // top-left — Lewin
+        { label:"Lewin 1947\n3 Stages", x:-262, y:-202, color:'sage', children:[
+            { label:'Unfreeze',  x:-378, y:-322 },
+            { label:'Change',    x:-432, y:-208 },
+            { label:'Refreeze',  x:-392, y:-92  },
+        ]},
+        // top-centre — ADKAR
+        { label:"ADKAR\nModel", x:0, y:-280, color:'lavender', children:[
+            { label:'Awareness',   x:-105, y:-388 },
+            { label:'Desire',      x:-35,  y:-415 },
+            { label:'Knowledge',   x:38,   y:-415 },
+            { label:'Ability',     x:105,  y:-388 },
+            { label:'Reinforce',   x:148,  y:-342 },
+        ]},
+        // top-right — Kotter
+        { label:"Kotter 1996\n8 Steps", x:262, y:-202, color:'rose', children:[
+            { label:'Create\nUrgency',      x:375, y:-328 },
+            { label:'Build\nCoalition',     x:435, y:-220 },
+            { label:'Vision &\nEnlist',     x:455, y:-108 },
+            { label:'Enable &\nQuick Wins', x:422, y:5   },
+            { label:'Sustain &\nInstitute', x:368, y:95  },
+        ]},
+        // right — McKinsey 7-S
+        { label:"McKinsey\n7-S", x:335, y:58, color:'blue', children:[
+            { label:'Strategy\nStructure\nSystems', x:458, y:-52  },
+            { label:'Skills\nStyle · Staff',        x:465, y:72   },
+            { label:'Shared\nValues',               x:422, y:185  },
+        ]},
+        // bottom-right — Appreciative Inquiry
+        { label:"Appreciative\nInquiry", x:252, y:218, color:'teal', children:[
+            { label:'Discover', x:375, y:298  },
+            { label:'Dream',    x:330, y:375  },
+            { label:'Design',   x:218, y:405  },
+            { label:'Destiny',  x:122, y:380  },
+        ]},
+        // bottom-centre — Satir
+        { label:"Satir 1991\n5 Stages", x:0, y:308, color:'peach', children:[
+            { label:'Late\nStatus Quo',    x:-95,  y:418 },
+            { label:'Chaos &\nResistance', x:0,    y:448 },
+            { label:'New\nStatus Quo',     x:95,   y:418 },
+        ]},
+        // bottom-left — Kübler-Ross
+        { label:"Kübler-Ross\nCurve", x:-252, y:218, color:'coral', children:[
+            { label:'Denial',      x:-375, y:295  },
+            { label:'Frustration', x:-328, y:372  },
+            { label:'Depression',  x:-220, y:404  },
+            { label:'Experiment',  x:-120, y:378  },
+            { label:'Integration', x:-74,  y:320  },
+        ]},
+        // left — Bridges
+        { label:"Bridges 1991\nTransition", x:-335, y:58, color:'peach', children:[
+            { label:'Endings\nLetting Go', x:-445, y:-58  },
+            { label:'Neutral\nZone',       x:-465, y:62   },
+            { label:'New\nBeginning',      x:-432, y:180  },
+        ]},
+    ]
+};
+
+// ─── MindMap ──────────────────────────────────────────────────────────────────
+class MindMap {
+    constructor(svgId, data) {
+        this.svg   = document.getElementById(svgId);
+        this.data  = data;
+        this.nodes = [];
+        this.drag  = null;
+        this._last = null;
+        this._raf  = null;
+        this._resize();
+        this._build();
+        this._defs();
+        this._listen();
+        this._tick();
+    }
+
+    _resize() {
+        // The pane may be display:none at init time, so read from the always-visible canvas-wrap
+        const wrap = document.querySelector('.canvas-wrap');
+        this.W  = wrap.clientWidth;
+        this.H  = wrap.clientHeight;
+        this.cx = this.W / 2;
+        this.cy = this.H / 2;
+        this.svg.setAttribute('viewBox', `0 0 ${this.W} ${this.H}`);
+    }
+
+    _build() {
+        this.nodes = [];
+        const { cx, cy } = this;
+
+        const center = {
+            x:cx, y:cy, vx:0, vy:0,
+            label:this.data.center.label,
+            isCenter:true, pal:P.center,
+            r:66, level:0, restDist:0, parent:null
+        };
+        this.nodes.push(center);
+
+        this.data.nodes.forEach(nd => {
+            const pal = P[nd.color] || P.sage;
+            const main = {
+                x: cx + nd.x, y: cy + nd.y,
+                vx:(Math.random()-.5)*0.06, vy:(Math.random()-.5)*0.06,
+                label:nd.label, parent:center,
+                pal:{ fill:pal.fill, stroke:pal.stroke, text:pal.text },
+                r:50, level:1, restDist:230
+            };
+            this.nodes.push(main);
+
+            (nd.children||[]).forEach(cd => {
+                this.nodes.push({
+                    x: cx + cd.x, y: cy + cd.y,
+                    vx:(Math.random()-.5)*0.05, vy:(Math.random()-.5)*0.05,
+                    label:cd.label, parent:main,
+                    pal:{ fill:pal.cf, stroke:pal.cs, text:pal.text },
+                    r:38, level:2, restDist:158
+                });
+            });
+        });
+    }
+
+    _defs() {
+        this.svg.innerHTML = `<defs>
+          <filter id="sh0" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="6" stdDeviation="16" flood-color="rgba(100,70,40,0.15)"/>
+          </filter>
+          <filter id="sh1" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="4" stdDeviation="9"  flood-color="rgba(120,85,50,0.12)"/>
+          </filter>
+          <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="5"  flood-color="rgba(130,95,60,0.10)"/>
+          </filter>
+        </defs>`;
+    }
+
+    _render() {
+        [...this.svg.children].forEach(c => { if (c.tagName !== 'defs') c.remove(); });
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const lg = document.createElementNS(NS,'g');
+        const ng = document.createElementNS(NS,'g');
+        this.svg.append(lg, ng);
+
+        this.nodes.forEach(n => {
+            if (!n.parent) return;
+            const x1=n.parent.x, y1=n.parent.y, x2=n.x, y2=n.y;
+            const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy)||1;
+            const off = len * 0.1;
+            const cpx = (x1+x2)/2 - (dy/len)*off;
+            const cpy = (y1+y2)/2 + (dx/len)*off;
+            const path = document.createElementNS(NS,'path');
+            path.setAttribute('d', `M${x1} ${y1} Q${cpx} ${cpy} ${x2} ${y2}`);
+            path.setAttribute('fill','none');
+            path.setAttribute('stroke-linecap','round');
+            path.setAttribute('stroke', n.level===1 ? 'rgba(155,120,90,0.28)' : 'rgba(170,140,108,0.20)');
+            path.setAttribute('stroke-width', n.level===1 ? '2' : '1.5');
+            lg.appendChild(path);
+        });
+
+        this.nodes.forEach((n, i) => {
+            const g = document.createElementNS(NS,'g');
+            g.setAttribute('data-i', i);
+            g.style.cursor = 'grab';
+
+            const c = document.createElementNS(NS,'circle');
+            c.setAttribute('cx', n.x); c.setAttribute('cy', n.y); c.setAttribute('r', n.r);
+            c.setAttribute('fill',   n.pal.fill);
+            c.setAttribute('stroke', n.pal.stroke);
+            c.setAttribute('stroke-width', n.isCenter ? '2.5' : '1.5');
+            c.setAttribute('filter', n.isCenter ? 'url(#sh0)' : n.level===1 ? 'url(#sh1)' : 'url(#sh2)');
+            g.appendChild(c);
+
+            const lines = n.label.split('\n');
+            const totalH = (lines.length - 1) * 14;
+            lines.forEach((txt, li) => {
+                const t = document.createElementNS(NS,'text');
+                t.setAttribute('x', n.x);
+                t.setAttribute('y', n.y - totalH/2 + li*14 + 5);
+                t.setAttribute('text-anchor','middle');
+                t.setAttribute('fill', n.pal.text);
+                t.setAttribute('font-family', n.isCenter ? "'Cormorant Garamond',serif" : "'Nunito',sans-serif");
+                t.setAttribute('font-size',   n.isCenter ? '15' : n.level===1 ? '11.5' : '10.5');
+                t.setAttribute('font-weight', n.isCenter ? '600' : n.level===1 ? '600' : '400');
+                t.style.pointerEvents = 'none';
+                t.style.userSelect    = 'none';
+                t.textContent = txt;
+                g.appendChild(t);
+            });
+
+            ng.appendChild(g);
+        });
+    }
+
+    _tick() {
+        const now = performance.now();
+        const dt  = Math.min(((now - (this._last||now)) / 16.667), 2.5);
+        this._last = now;
+
+        this.nodes.forEach((n, i) => {
+            if (this.drag === i || !n.parent) return;
+
+            const dx = n.parent.x - n.x;
+            const dy = n.parent.y - n.y;
+            const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+
+            const force = (dist - n.restDist) * 0.005 * dt;
+            n.vx += (dx/dist) * force;
+            n.vy += (dy/dist) * force;
+
+            n.vx += (Math.random()-.5) * 0.009 * dt;
+            n.vy += (Math.random()-.5) * 0.009 * dt;
+
+            n.vx *= Math.pow(0.968, dt);
+            n.vy *= Math.pow(0.968, dt);
+
+            const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+            if (spd > 1.0) { n.vx = n.vx/spd; n.vy = n.vy/spd; }
+
+            n.x += n.vx * dt;
+            n.y += n.vy * dt;
+
+            const m = n.r + 14;
+            if (n.x < m)         n.vx += (m - n.x) * 0.07;
+            if (n.x > this.W-m)  n.vx -= (n.x - (this.W-m)) * 0.07;
+            if (n.y < m)         n.vy += (m - n.y) * 0.07;
+            if (n.y > this.H-m)  n.vy -= (n.y - (this.H-m)) * 0.07;
+        });
+
+        this._render();
+        this._raf = requestAnimationFrame(() => this._tick());
+    }
+
+    _listen() {
+        const svg = this.svg;
+        svg.addEventListener('mousedown', e => {
+            const g = e.target.closest('g[data-i]');
+            if (g) this.drag = +g.getAttribute('data-i');
+        });
+        svg.addEventListener('mousemove', e => {
+            if (this.drag === null) return;
+            const r = svg.getBoundingClientRect();
+            const n = this.nodes[this.drag];
+            n.x = (e.clientX - r.left) * (this.W / r.width);
+            n.y = (e.clientY - r.top)  * (this.H / r.height);
+            n.vx = n.vy = 0;
+        });
+        const end = () => { this.drag = null; };
+        svg.addEventListener('mouseup',    end);
+        svg.addEventListener('mouseleave', end);
+
+        svg.addEventListener('touchstart', e => {
+            const g = e.target.closest('g[data-i]');
+            if (g) { e.preventDefault(); this.drag = +g.getAttribute('data-i'); }
+        }, {passive:false});
+        svg.addEventListener('touchmove', e => {
+            if (this.drag === null) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            const r = svg.getBoundingClientRect();
+            const n = this.nodes[this.drag];
+            n.x = (t.clientX - r.left) * (this.W / r.width);
+            n.y = (t.clientY - r.top)  * (this.H / r.height);
+            n.vx = n.vy = 0;
+        }, {passive:false});
+        svg.addEventListener('touchend', end);
+    }
+
+    stop() { if (this._raf) cancelAnimationFrame(this._raf); }
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+let maps = {};
+
+function init() {
+    Object.values(maps).forEach(m => m.stop());
+    maps = {};
+    maps.lifecycle = new MindMap('lifecycleSvg', lifecycleData);
+    maps.change    = new MindMap('changeSvg',    changeData);
+}
+
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab')     .forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(name).classList.add('active');
+}
+
+window.addEventListener('load', init);
+window.addEventListener('resize', init);
+</script>
+</body>
+</html>

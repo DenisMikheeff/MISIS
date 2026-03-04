@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Analysis Calculator · NUST MISIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #05080f;
+  --bg-card:   #0a0f1e;
+  --bg-input:  #060a16;
+  --bg-hover:  #0f1628;
+  --border:    #182040;
+  --border-hi: #253560;
+  --accent:    #4175f5;
+  --accent-lo: rgba(65,117,245,.12);
+  --accent-hi: #6993ff;
+  --green:     #10b981;
+  --green-lo:  rgba(16,185,129,.1);
+  --red:       #f05252;
+  --red-lo:    rgba(240,82,82,.1);
+  --amber:     #f59e0b;
+  --text:      #dde4ff;
+  --muted:     #6878a8;
+  --dim:       #3a4570;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'IBM Plex Sans', sans-serif;
+  --display:   'Syne', sans-serif;
+  --radius:    10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* HEADER */
+.site-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 0 22px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 22px;
+  gap: 16px; flex-wrap: wrap;
+}
+.site-header h1 {
+  font-family: var(--display); font-size: 1.75rem; font-weight: 800;
+  background: linear-gradient(135deg, #7ba8ff 0%, #a78bfa 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.site-header .sub { font-size: .78rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+.mode-toggle { display: flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 3px; }
+.mode-toggle button {
+  font-family: var(--sans); font-size: .8rem; font-weight: 500;
+  padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer;
+  color: var(--muted); background: transparent; transition: all .2s;
+}
+.mode-toggle button.active { background: var(--accent); color: #fff; }
+
+/* TABS */
+.tab-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 26px; }
+.tab-nav button {
+  font-family: var(--sans); font-size: .82rem; font-weight: 500;
+  padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; color: var(--muted); background: var(--bg-card); transition: all .2s;
+}
+.tab-nav button:hover { border-color: var(--border-hi); color: var(--text); }
+.tab-nav button.active { background: var(--accent-lo); border-color: var(--accent); color: var(--accent-hi); }
+
+/* SECTIONS */
+.section { display: none; animation: fadeUp .25s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+/* CARD */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.card-title { font-family: var(--display); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.card-sub { font-size: .82rem; color: var(--muted); margin-bottom: 20px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.cf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+
+/* FIELD */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: .72rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.field input[type="number"], .field select {
+  background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--text); border-radius: 7px; padding: 9px 11px;
+  font-family: var(--mono); font-size: .88rem; transition: border-color .2s; width: 100%;
+}
+.field input[type="number"]:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-lo); }
+
+/* SLIDER */
+.slider-wrap { display: flex; flex-direction: column; gap: 8px; }
+.slider-label { display: flex; justify-content: space-between; align-items: center; }
+.slider-label .lbl { font-size: .72rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.slider-val { font-family: var(--mono); font-size: .88rem; color: var(--accent-hi); font-weight: 500; }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--border); border-radius: 2px; outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; border: 3px solid var(--bg-card); transition: background .2s; }
+input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent-hi); }
+input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; background: var(--accent); border-radius: 50%; border: 3px solid var(--bg-card); }
+
+/* BUTTONS */
+.btn {
+  font-family: var(--sans); font-size: .82rem; font-weight: 600;
+  padding: 8px 18px; border: 1px solid var(--border); border-radius: 7px;
+  cursor: pointer; transition: all .2s; background: var(--bg-hover); color: var(--text);
+}
+.btn:hover { border-color: var(--accent); color: var(--accent-hi); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hi); border-color: var(--accent-hi); }
+.btn-sm { padding: 5px 12px; font-size: .76rem; }
+.btn-danger { border-color: var(--red); color: var(--red); }
+.btn-danger:hover { background: var(--red-lo); }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* STAT BOXES */
+.stat-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; border-left: 3px solid var(--border-hi); }
+.stat-box.pos { border-left-color: var(--green); background: var(--green-lo); }
+.stat-box.neg { border-left-color: var(--red);   background: var(--red-lo); }
+.stat-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.stat-value { font-family: var(--mono); font-size: 1.4rem; font-weight: 500; color: var(--text); }
+.stat-value.pos { color: var(--green); }
+.stat-value.neg { color: var(--red); }
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; margin-top: 16px; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+th { background: var(--bg-input); color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th:first-child { text-align: left; }
+td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--border); font-family: var(--mono); color: var(--text); }
+td:first-child { text-align: left; font-family: var(--sans); color: var(--muted); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+
+/* EDUCATIONAL */
+.edu-block { display: none; margin-top: 18px; padding: 16px 18px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); border-left: 3px solid var(--accent); }
+.edu-block.visible { display: block; }
+.edu-block h4 { font-family: var(--display); font-size: .88rem; color: var(--accent-hi); margin-bottom: 10px; }
+.formula { font-family: var(--mono); font-size: .8rem; background: var(--bg-card); padding: 8px 12px; border-radius: 6px; margin: 8px 0; color: var(--amber); overflow-x: auto; white-space: pre-wrap; }
+.step { font-size: .8rem; color: var(--text); margin: 5px 0 5px 12px; padding-left: 10px; border-left: 2px solid var(--border-hi); }
+
+/* INTERPRETATION */
+.interp { margin-top: 14px; padding: 12px 16px; border-radius: var(--radius); background: var(--bg-input); border: 1px solid var(--border); font-size: .84rem; line-height: 1.7; }
+.ok  { color: var(--green); font-weight: 700; font-family: var(--mono); }
+.bad { color: var(--red);   font-weight: 700; font-family: var(--mono); }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+.sect-label { font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px; }
+
+/* PROJECT CARDS */
+.proj-card { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.proj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.proj-title { font-family: var(--display); font-size: .9rem; color: var(--accent-hi); font-weight: 700; }
+
+/* PIE */
+.pie-row { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: .8rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="site-header">
+  <div>
+    <h1>Investment Analysis Calculator</h1>
+    <div class="sub">NUST MISIS &middot; Investment Management &amp; M&amp;A</div>
+  </div>
+  <div class="mode-toggle">
+    <button data-mode="professional" class="active">&#128188; Professional</button>
+    <button data-mode="educational">&#127979; Educational</button>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button data-tab="general"   class="active">NPV / IRR</button>
+  <button data-tab="model">Financial Model</button>
+  <button data-tab="annuity">Annuity Series</button>
+  <button data-tab="compare">Multi-Project</button>
+  <button data-tab="portfolio">Portfolio</button>
+  <button data-tab="risk">Risk Analysis</button>
+</nav>
+
+<!-- ═══ TAB 1: GENERAL ═══ -->
+<section id="general" class="section active">
+<div class="card">
+  <div class="card-title">General Investment Project Evaluator</div>
+  <div class="card-sub">NPV &middot; IRR &middot; Profitability Index &middot; Payback Period &middot; Net Terminal Value</div>
+  <div class="grid2">
+    <div class="field">
+      <label>Initial Investment (thousands)</label>
+      <input type="number" id="gen_inv" value="10000">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label">
+        <span class="lbl">Discount Rate (WACC)</span>
+        <span class="slider-val" id="gen_rate_val">19.0%</span>
+      </div>
+      <input type="range" id="gen_rate" min="0" max="50" step="0.1" value="19">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="sect-label">Cash Flows by Year (thousands)</div>
+  <div class="cf-grid" id="gen_cf_list"></div>
+  <div class="btn-group">
+    <button class="btn btn-sm" id="gen_add_yr">+ Add Year</button>
+    <button class="btn btn-sm" id="gen_rem_yr">&#8722; Remove Year</button>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box" id="gen_npv_box"><div class="stat-label">Net Present Value</div><div class="stat-value" id="gen_npv">&#8212;</div></div>
+    <div class="stat-box" id="gen_pi_box"><div class="stat-label">Profitability Index</div><div class="stat-value" id="gen_pi">&#8212;</div></div>
+    <div class="stat-box" id="gen_irr_box"><div class="stat-label">IRR</div><div class="stat-value" id="gen_irr">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Payback Period</div><div class="stat-value" id="gen_pp">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Discounted Payback</div><div class="stat-value" id="gen_dpp">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Net Terminal Value</div><div class="stat-value" id="gen_ntv">&#8212;</div></div>
+  </div>
+  <div class="edu-block" id="gen_edu"><h4>Step-by-Step Calculation</h4><div id="gen_edu_c"></div></div>
+  <div class="interp" id="gen_interp"></div>
+</div>
+</section>
+
+<!-- ═══ TAB 2: FINANCIAL MODEL ═══ -->
+<section id="model" class="section">
+<div class="card">
+  <div class="card-title">Complete Financial Model</div>
+  <div class="card-sub">Revenue &#8594; Operating Expenses &#8594; Depreciation &#8594; Tax &#8594; Cash Flow</div>
+  <div class="grid2">
+    <div class="field"><label>Equipment Cost (thousands)</label><input type="number" id="m_equip" value="10000"></div>
+    <div class="field"><label>Equipment Life (years)</label><input type="number" id="m_life" value="5" min="1" max="20"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Discount Rate (WACC)</span><span class="slider-val" id="m_rate_val">19.0%</span></div>
+      <input type="range" id="m_rate" min="0" max="50" step="0.1" value="19">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Tax Rate</span><span class="slider-val" id="m_tax_val">30%</span></div>
+      <input type="range" id="m_tax" min="0" max="60" step="1" value="30">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Expense Growth Rate</span><span class="slider-val" id="m_growth_val">3.0%</span></div>
+      <input type="range" id="m_growth" min="0" max="20" step="0.5" value="3">
+    </div>
+    <div class="field"><label>Year 1 Operating Expenses (thousands)</label><input type="number" id="m_opex" value="3400"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="sect-label">Revenue by Year (thousands)</div>
+  <div class="cf-grid" id="m_rev_list"></div>
+  <div class="tbl-wrap"><table><thead id="m_thead"></thead><tbody id="m_tbody"></tbody></table></div>
+  <div class="grid3" style="margin-top:18px;">
+    <div class="stat-box" id="m_npv_box"><div class="stat-label">NPV</div><div class="stat-value" id="m_npv">&#8212;</div></div>
+    <div class="stat-box" id="m_pi_box"><div class="stat-label">Profitability Index</div><div class="stat-value" id="m_pi">&#8212;</div></div>
+    <div class="stat-box" id="m_irr_box"><div class="stat-label">IRR</div><div class="stat-value" id="m_irr">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Payback Period</div><div class="stat-value" id="m_pp">&#8212;</div></div>
+  </div>
+  <div class="edu-block" id="m_edu"><h4>Financial Model Flow</h4><div id="m_edu_c"></div></div>
+  <div class="interp" id="m_interp"></div>
+</div>
+</section>
+
+<!-- ═══ TAB 3: ANNUITY ═══ -->
+<section id="annuity" class="section">
+<div class="card">
+  <div class="card-title">Annuity Series Calculator</div>
+  <div class="card-sub">For projects with alternating payment patterns (odd years / even years)</div>
+  <div class="grid2">
+    <div class="field"><label>Initial Investment (thousands)</label><input type="number" id="a_inv" value="1500"></div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Annual Discount Rate</span><span class="slider-val" id="a_rate_val">10.0%</span></div>
+      <input type="range" id="a_rate" min="0" max="50" step="0.1" value="10">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid2">
+    <div>
+      <div class="sect-label">Series 1 &mdash; Odd Years (1, 3, 5&nbsp;&hellip;)</div>
+      <div class="grid2">
+        <div class="field"><label>Payment Amount</label><input type="number" id="a_pmt1" value="100"></div>
+        <div class="field"><label>Number of Payments</label><input type="number" id="a_n1" value="50"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sect-label">Series 2 &mdash; Even Years (2, 4, 6&nbsp;&hellip;)</div>
+      <div class="grid2">
+        <div class="field"><label>Payment Amount</label><input type="number" id="a_pmt2" value="200"></div>
+        <div class="field"><label>Number of Payments</label><input type="number" id="a_n2" value="50"></div>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box"><div class="stat-label">Two-Year Rate r&#8322;</div><div class="stat-value" id="a_r2">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">PAF &mdash; Series 1</div><div class="stat-value" id="a_paf1">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">PV Series 1 (yr &minus;1)</div><div class="stat-value" id="a_pv1">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">PAF &mdash; Series 2</div><div class="stat-value" id="a_paf2">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">PV Series 2 (yr 0)</div><div class="stat-value" id="a_pv2">&#8212;</div></div>
+    <div class="stat-box" id="a_npv_box"><div class="stat-label">Net Present Value</div><div class="stat-value" id="a_npv">&#8212;</div></div>
+  </div>
+  <div class="edu-block" id="a_edu"><h4>Step-by-Step Calculation</h4><div id="a_edu_c"></div></div>
+  <div class="interp" id="a_interp"></div>
+</div>
+</section>
+
+<!-- ═══ TAB 4: COMPARISON ═══ -->
+<section id="compare" class="section">
+<div class="card">
+  <div class="card-title">Multi-Project Comparison</div>
+  <div class="card-sub">Compare NPV &middot; PI &middot; IRR &middot; Payback Period across projects</div>
+  <div class="slider-wrap" style="max-width:400px; margin-bottom:20px;">
+    <div class="slider-label"><span class="lbl">Discount Rate (Cost of Capital)</span><span class="slider-val" id="c_rate_val">12.0%</span></div>
+    <input type="range" id="c_rate" min="0" max="50" step="0.1" value="12">
+  </div>
+  <div id="c_projects"></div>
+  <button class="btn btn-primary btn-sm" id="c_add">+ Add Project</button>
+  <div class="tbl-wrap" style="margin-top:18px;">
+    <table><thead><tr><th>Project</th><th>NPV</th><th>PI</th><th>IRR</th><th>Payback</th><th>Decision</th></tr></thead>
+    <tbody id="c_tbody"></tbody></table>
+  </div>
+  <div class="edu-block" id="c_edu"><h4>Comparison Methodology</h4><div id="c_edu_c"></div></div>
+</div>
+</section>
+
+<!-- ═══ TAB 5: PORTFOLIO ═══ -->
+<section id="portfolio" class="section">
+<div class="card">
+  <div class="card-title">Investment Portfolio Composition</div>
+  <div class="card-sub">Allocate across asset classes and visualise the portfolio structure</div>
+  <div class="grid2">
+    <div class="field">
+      <label>Preset Strategy</label>
+      <select id="p_type">
+        <option value="conservative">Conservative (Low Risk)</option>
+        <option value="moderate">Moderate (Medium Risk)</option>
+        <option value="aggressive">Aggressive (High Risk)</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="field"><label>Total Portfolio Value (thousands)</label><input type="number" id="p_value" value="1000"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="pie-row">
+    <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:14px;">
+      <div class="slider-wrap">
+        <div class="slider-label"><span class="lbl">Stocks</span><span class="slider-val" id="p_s_val">10%</span></div>
+        <input type="range" id="p_stocks" min="0" max="100" step="1" value="10">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span class="lbl">Government Bonds</span><span class="slider-val" id="p_g_val">50%</span></div>
+        <input type="range" id="p_gov" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span class="lbl">Corporate Bonds</span><span class="slider-val" id="p_c_val">20%</span></div>
+        <input type="range" id="p_corp" min="0" max="100" step="1" value="20">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span class="lbl">Short-term Securities</span><span class="slider-val" id="p_t_val">20%</span></div>
+        <input type="range" id="p_short" min="0" max="100" step="1" value="20">
+      </div>
+      <div class="stat-box" id="p_total_box">
+        <div class="stat-label">Total Allocation</div>
+        <div class="stat-value" id="p_total">100%</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <canvas id="pie_canvas" width="240" height="240"></canvas>
+      <div id="pie_legend"></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Asset Class</th><th>Allocation</th><th>Amount (k)</th></tr></thead>
+    <tbody id="p_tbody"></tbody></table>
+  </div>
+  <div class="edu-block" id="p_edu"><h4>Portfolio Strategy</h4><div id="p_edu_c"></div></div>
+</div>
+</section>
+
+<!-- ═══ TAB 6: RISK ═══ -->
+<section id="risk" class="section">
+<div class="card">
+  <div class="card-title">Two-Asset Portfolio Risk &amp; Return</div>
+  <div class="card-sub">Portfolio variance &middot; Standard deviation &middot; Efficient frontier &middot; Minimum variance portfolio</div>
+  <div class="grid2">
+    <div>
+      <div class="sect-label">Asset A</div>
+      <div class="grid2">
+        <div class="field"><label>Expected Return (%)</label><input type="number" id="r_ra" value="20" step="0.1"></div>
+        <div class="field"><label>Std Deviation (%)</label><input type="number" id="r_sa" value="10" step="0.1"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sect-label">Asset B</div>
+      <div class="grid2">
+        <div class="field"><label>Expected Return (%)</label><input type="number" id="r_rb" value="40" step="0.1"></div>
+        <div class="field"><label>Std Deviation (%)</label><input type="number" id="r_sb" value="30" step="0.1"></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Correlation &rho;<sub>AB</sub></span><span class="slider-val" id="r_corr_val">0.25</span></div>
+      <input type="range" id="r_corr" min="-1" max="1" step="0.01" value="0.25">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Weight of Asset A (X<sub>A</sub>)</span><span class="slider-val" id="r_wa_val">90%</span></div>
+      <input type="range" id="r_wa" min="0" max="100" step="1" value="90">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box"><div class="stat-label">E(R<sub>p</sub>) Expected Return</div><div class="stat-value" id="r_er">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Portfolio Variance &sigma;&sup2;<sub>p</sub> <span style="font-size:.65rem;opacity:.6;">(%&sup2;)</span></div><div class="stat-value" id="r_var">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Portfolio Std Dev &sigma;<sub>p</sub></div><div class="stat-value" id="r_sd">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Cov(A, B) <span style="font-size:.65rem;opacity:.6;">(%&sup2;)</span></div><div class="stat-value" id="r_cov">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Min-Var Weight X<sub>A</sub>*</div><div class="stat-value" id="r_mw">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Min-Var &sigma;<sub>p</sub>*</div><div class="stat-value" id="r_ms">&#8212;</div></div>
+  </div>
+  <div style="margin-top:22px;">
+    <div class="sect-label">Efficient Frontier</div>
+    <canvas id="frontier_canvas" width="900" height="440" style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);width:100%;"></canvas>
+  </div>
+  <div class="edu-block" id="r_edu"><h4>Risk &amp; Return Formulas</h4><div id="r_edu_c"></div></div>
+  <div class="interp" id="r_interp"></div>
+</div>
+</section>
+
+</div>
+<script>
+// ─────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────
+let appMode   = 'professional';
+let genCFs    = [2980, 3329, 3815, 3599, 2121];
+let modelRevs = [6800, 7400, 8200, 8000, 6000];
+let lastModelLife = 5;  // Fix 7: track life to avoid unnecessary DOM rebuild
+let projects  = [
+  { id:1, inv:1000, cfs:[300,400,400,500,600] },
+  { id:2, inv:1200, cfs:[0,100,250,1200,1300] }
+];
+let nextProjId = 3;
+
+// Fix 10: single source of truth for portfolio slider IDs
+const PORT_IDS      = ['p_stocks','p_gov','p_corp','p_short'];
+const PORT_DISP_IDS = ['p_s_val','p_g_val','p_c_val','p_t_val'];
+const PIE_COLORS    = ['#4175f5','#10b981','#f59e0b','#f05252'];
+const PIE_LABELS    = ['Stocks','Gov Bonds','Corp Bonds','Short-term'];
+const PRESETS       = { conservative:[10,50,20,20], moderate:[35,35,15,15], aggressive:[60,20,10,10] };
+
+// ─────────────────────────────────────────────────────────
+// MATH HELPERS
+// ─────────────────────────────────────────────────────────
+function fmt(n, d=2) {
+  if (!isFinite(n)) return 'N/A';
+  return n.toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d });
+}
+
+function calcNPV(inv, cfs, r) {
+  return cfs.reduce((acc, cf, i) => acc + cf / (1+r)**(i+1), -inv);
+}
+
+function calcIRR(inv, cfs) {
+  let r = 0.1;
+  for (let iter = 0; iter < 300; iter++) {
+    let npv = -inv, d = 0;
+    cfs.forEach((cf, t) => {
+      const p = t + 1;
+      npv += cf / (1+r)**p;
+      d   -= p * cf / (1+r)**(p+1);
+    });
+    if (Math.abs(npv) < 1e-8) return r;
+    if (Math.abs(d)   < 1e-14) break;
+    r -= npv / d;
+    r = Math.max(-0.9999, Math.min(r, 50));
+  }
+  return r;
+}
+
+// Fix 5: detect non-conventional cash flows (multiple sign changes → possible multiple IRRs)
+function countSignChanges(inv, cfs) {
+  const full = [-inv, ...cfs];
+  let changes = 0;
+  for (let i = 1; i < full.length; i++) {
+    if (full[i] * full[i-1] < 0) changes++;
+  }
+  return changes;
+}
+
+function calcPP(inv, cfs, disc=false, r=0) {
+  let cum = 0, prev = 0;
+  for (let i = 0; i < cfs.length; i++) {
+    const cf = disc ? cfs[i] / (1+r)**(i+1) : cfs[i];
+    prev = cum; cum += cf;
+    if (cum >= inv) return fmt(i + (inv - prev) / cf, 2) + ' yrs';
+  }
+  return '>' + cfs.length + ' yrs';
+}
+
+function calcPAF(r, n) {
+  return r === 0 ? n : (1 - (1+r)**-n) / r;
+}
+
+function colorBox(boxId, valId, positive) {
+  const box = document.getElementById(boxId), val = document.getElementById(valId);
+  box.classList.toggle('pos', positive);  box.classList.toggle('neg', !positive);
+  val.classList.toggle('pos', positive);  val.classList.toggle('neg', !positive);
+}
+
+// Fix 11: HiDPI canvas helper — returns a scaled ctx, uses CSS pixel dimensions
+function scaleCanvas(canvas, cssW, cssH) {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width  = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return ctx;
+}
+
+// ─────────────────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === tab));
+  // Fix 6: call calcRisk (not drawFrontier directly) so we don't duplicate DOM-read logic
+  if (tab === 'portfolio') setTimeout(drawPie, 30);
+  if (tab === 'risk')      setTimeout(calcRisk, 30);
+}
+
+function setMode(mode) {
+  appMode = mode;
+  document.querySelectorAll('.mode-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.edu-block').forEach(el => el.classList.toggle('visible', mode === 'educational'));
+  calcGeneral(); calcModel(); calcAnnuity(); renderComparison(); renderPortfolio(); calcRisk();
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 1 — GENERAL NPV/IRR
+// ─────────────────────────────────────────────────────────
+function renderGenCFInputs() {
+  const list = document.getElementById('gen_cf_list');
+  list.innerHTML = genCFs.map((v, i) =>
+    `<div class="field"><label>Year ${i+1}</label><input type="number" data-idx="${i}" class="gen-cf" value="${v}"></div>`
+  ).join('');
+  list.querySelectorAll('.gen-cf').forEach(inp =>
+    inp.addEventListener('input', e => { genCFs[+e.target.dataset.idx] = parseFloat(e.target.value) || 0; calcGeneral(); })
+  );
+}
+
+function calcGeneral() {
+  const inv  = parseFloat(document.getElementById('gen_inv').value)  || 0;
+  const r    = parseFloat(document.getElementById('gen_rate').value) / 100;
+  const npv  = calcNPV(inv, genCFs, r);
+  const pvCF = genCFs.reduce((s, cf, i) => s + cf / (1+r)**(i+1), 0);
+  const pi   = pvCF / inv;
+  const irr  = calcIRR(inv, genCFs);
+  const n    = genCFs.length;
+  const ntv  = npv * (1+r)**n;
+
+  document.getElementById('gen_npv').textContent  = fmt(npv);
+  document.getElementById('gen_pi').textContent   = fmt(pi, 3);
+  document.getElementById('gen_irr').textContent  = fmt(irr * 100, 2) + '%';
+  document.getElementById('gen_pp').textContent   = calcPP(inv, genCFs);
+  document.getElementById('gen_dpp').textContent  = calcPP(inv, genCFs, true, r);
+  document.getElementById('gen_ntv').textContent  = fmt(ntv);
+
+  // Fix 4: verdict driven by NPV alone; IRR/PI are supporting metrics
+  colorBox('gen_npv_box', 'gen_npv', npv > 0);
+  colorBox('gen_pi_box',  'gen_pi',  pi > 1);
+  colorBox('gen_irr_box', 'gen_irr', irr > r);
+
+  // Fix 5: warn about non-conventional CF profile
+  const sc = countSignChanges(inv, genCFs);
+  const multiIrrWarn = sc > 1
+    ? ` <span style="color:var(--amber);"> ⚠ ${sc} sign changes detected — IRR may not be unique.</span>` : '';
+
+  if (appMode === 'educational') {
+    let s = `<div class="formula">NPV = −I₀ + Σ CFₜ / (1+r)ᵗ</div>`;
+    s += `<div class="step">Initial Investment: −${fmt(inv)}</div>`;
+    genCFs.forEach((cf, i) => {
+      const pv = cf / (1+r)**(i+1);
+      s += `<div class="step">Year ${i+1}: ${fmt(cf)} / (1+${fmt(r,4)})^${i+1} = ${fmt(pv)}</div>`;
+    });
+    s += `<div class="step"><strong>NPV = ${fmt(npv)}</strong></div>`;
+    s += `<div class="formula">NTV = NPV × (1+r)ⁿ = ${fmt(npv)} × (1+${fmt(r,4)})^${n} = ${fmt(ntv)}</div>`;
+    s += `<div class="formula">IRR (Newton-Raphson) = ${fmt(irr*100,4)}%${sc>1?' ⚠ multiple IRRs possible':''}</div>`;
+    document.getElementById('gen_edu_c').innerHTML = s;
+  }
+
+  // Fix 4: accept/reject driven by NPV; IRR & PI shown as context
+  const accept = npv > 0;
+  let reasons = `NPV=${fmt(npv)} (${accept?'positive':'negative'}), PI=${fmt(pi,3)}, IRR=${fmt(irr*100,2)}% vs WACC ${fmt(r*100,2)}%`;
+  document.getElementById('gen_interp').innerHTML = (accept
+    ? `<span class="ok">✓ ACCEPT PROJECT</span> — ${reasons}.`
+    : `<span class="bad">✗ REJECT PROJECT</span> — ${reasons}.`)
+    + multiIrrWarn;
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 2 — FINANCIAL MODEL
+// ─────────────────────────────────────────────────────────
+function renderModelRevInputs(life) {
+  // Fix 8: trim stale values when life shrinks
+  modelRevs = modelRevs.slice(0, life);
+  while (modelRevs.length < life) modelRevs.push(0);
+
+  const list = document.getElementById('m_rev_list');
+  list.innerHTML = Array.from({length: life}, (_, i) =>
+    `<div class="field"><label>Year ${i+1}</label><input type="number" data-ridx="${i}" class="m-rev" value="${modelRevs[i]}"></div>`
+  ).join('');
+  list.querySelectorAll('.m-rev').forEach(inp =>
+    inp.addEventListener('input', e => { modelRevs[+e.target.dataset.ridx] = parseFloat(e.target.value) || 0; calcModel(); })
+  );
+}
+
+function calcModel() {
+  const equip  = parseFloat(document.getElementById('m_equip').value)  || 0;
+  const life   = Math.max(1, parseInt(document.getElementById('m_life').value) || 5);
+  const r      = parseFloat(document.getElementById('m_rate').value)   / 100;
+  const tax    = parseFloat(document.getElementById('m_tax').value)    / 100;
+  const growth = parseFloat(document.getElementById('m_growth').value) / 100;
+  const opex0  = parseFloat(document.getElementById('m_opex').value)   || 0;
+  const depr   = equip / life;
+
+  // Fix 7: only rebuild revenue inputs when life actually changes
+  if (life !== lastModelLife) {
+    renderModelRevInputs(life);
+    lastModelLife = life;
+  }
+
+  const rowNames = ['Revenue','Op. Expenses','Op. Profit','Depreciation','Profit b/Tax','Tax','Net Profit','Cash Flow','DCF'];
+  const data = rowNames.map(() => []);
+  let totalDCF = 0;
+  const cashFlows = [];
+
+  for (let y = 0; y < life; y++) {
+    const rev   = modelRevs[y] || 0;
+    const opex  = opex0 * (1 + growth)**y;
+    const opPro = rev - opex;
+    const pbt   = opPro - depr;
+    // Fix 2: no tax relief on losses — tax only applies to positive profit
+    const txAmt = Math.max(0, pbt) * tax;
+    const np    = pbt - txAmt;
+    const cf    = np + depr;
+    const dcf   = cf / (1+r)**(y+1);
+    totalDCF += dcf;
+    cashFlows.push(cf);
+    [rev, opex, opPro, depr, pbt, txAmt, np, cf, dcf].forEach((v, ri) => data[ri].push(v));
+  }
+
+  const yrCols = Array.from({length: life}, (_, i) => `<th>Y${i+1}</th>`).join('');
+  document.getElementById('m_thead').innerHTML = `<tr><th>Item</th>${yrCols}</tr>`;
+  document.getElementById('m_tbody').innerHTML =
+    rowNames.map((row, ri) =>
+      `<tr><td>${row}</td>${data[ri].map(v => `<td>${fmt(v)}</td>`).join('')}</tr>`
+    ).join('') +
+    `<tr style="font-weight:600;"><td>Total DCF</td>` +
+    `<td colspan="${life}" style="text-align:right;color:var(--accent-hi);">${fmt(totalDCF)}</td></tr>`;
+
+  const npv = totalDCF - equip;
+  const pi  = totalDCF / equip;
+  const irr = calcIRR(equip, cashFlows);
+
+  document.getElementById('m_npv').textContent = fmt(npv);
+  document.getElementById('m_pi').textContent  = fmt(pi, 3);
+  document.getElementById('m_irr').textContent = fmt(irr * 100, 2) + '%';
+  document.getElementById('m_pp').textContent  = calcPP(equip, cashFlows);
+
+  // Fix 4: color by NPV sign
+  colorBox('m_npv_box', 'm_npv', npv > 0);
+  colorBox('m_pi_box',  'm_pi',  pi > 1);
+  colorBox('m_irr_box', 'm_irr', irr > r);
+
+  if (appMode === 'educational') {
+    document.getElementById('m_edu_c').innerHTML =
+      `<div class="formula">Revenue − Op.Expenses = Operational Profit</div>` +
+      `<div class="formula">Op.Profit − Depreciation = Profit before Tax</div>` +
+      `<div class="formula">max(0, PbT) × Tax Rate = Tax  <em style="color:var(--muted)">(no refund on losses)</em></div>` +
+      `<div class="formula">Net Profit + Depreciation = Cash Flow</div>` +
+      `<div class="step">Depreciation = ${fmt(equip)} ÷ ${life} = ${fmt(depr)} per year</div>` +
+      `<div class="step">Expenses grow ${fmt(growth*100,1)}% p.a. | Tax = ${fmt(tax*100,0)}% | WACC = ${fmt(r*100,1)}%</div>`;
+  }
+  // Fix 4: verdict by NPV
+  document.getElementById('m_interp').innerHTML = (npv > 0)
+    ? `<span class="ok">✓ FEASIBLE</span> — NPV=${fmt(npv)}, PI=${fmt(pi,3)}, IRR=${fmt(irr*100,2)}%`
+    : `<span class="bad">✗ NOT FEASIBLE</span> — NPV=${fmt(npv)}, PI=${fmt(pi,3)}, IRR=${fmt(irr*100,2)}%`;
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 3 — ANNUITY SERIES
+// ─────────────────────────────────────────────────────────
+function calcAnnuity() {
+  const inv  = parseFloat(document.getElementById('a_inv').value)  || 0;
+  const r    = parseFloat(document.getElementById('a_rate').value) / 100;
+  const pmt1 = parseFloat(document.getElementById('a_pmt1').value) || 0;
+  const n1   = parseInt(document.getElementById('a_n1').value)    || 0;
+  const pmt2 = parseFloat(document.getElementById('a_pmt2').value) || 0;
+  const n2   = parseInt(document.getElementById('a_n2').value)    || 0;
+
+  const r2   = (1+r)**2 - 1;
+  const paf1 = calcPAF(r2, n1);
+  const paf2 = calcPAF(r2, n2);
+  const pv1  = pmt1 * paf1;          // at year –1
+  const pv1a = pv1 * (1 + r);        // brought forward to year 0
+  const pv2  = pmt2 * paf2;          // at year 0
+  const npv  = -inv + pv1a + pv2;
+
+  document.getElementById('a_r2').textContent   = fmt(r2 * 100, 4) + '%';
+  document.getElementById('a_paf1').textContent = fmt(paf1, 6);
+  document.getElementById('a_pv1').textContent  = fmt(pv1);
+  document.getElementById('a_paf2').textContent = fmt(paf2, 6);
+  document.getElementById('a_pv2').textContent  = fmt(pv2);
+  document.getElementById('a_npv').textContent  = fmt(npv);
+  colorBox('a_npv_box', 'a_npv', npv > 0);
+
+  if (appMode === 'educational') {
+    document.getElementById('a_edu_c').innerHTML =
+      `<div class="formula">r₂ = (1+r)² − 1 = (1+${fmt(r,4)})² − 1 = ${fmt(r2,6)}</div>` +
+      `<div class="formula">PAF(r₂, n) = [1 − (1+r₂)⁻ⁿ] / r₂</div>` +
+      `<div class="step">PAF₁ = ${fmt(paf1,6)} | PV₁ at yr−1 = ${fmt(pmt1)} × ${fmt(paf1,6)} = ${fmt(pv1)}</div>` +
+      `<div class="step">PV₁ at yr 0 = ${fmt(pv1)} × (1+${fmt(r,4)}) = ${fmt(pv1a)}</div>` +
+      `<div class="step">PAF₂ = ${fmt(paf2,6)} | PV₂ at yr 0 = ${fmt(pmt2)} × ${fmt(paf2,6)} = ${fmt(pv2)}</div>` +
+      `<div class="formula">NPV = −${fmt(inv)} + ${fmt(pv1a)} + ${fmt(pv2)} = ${fmt(npv)}</div>`;
+  }
+  document.getElementById('a_interp').innerHTML = npv > 0
+    ? `<span class="ok">✓ ATTRACTIVE</span> — PV of annuities ${fmt(pv1a+pv2)} > investment ${fmt(inv)}.`
+    : `<span class="bad">✗ UNATTRACTIVE</span> — PV of annuities ${fmt(pv1a+pv2)} < investment ${fmt(inv)}.`;
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 4 — MULTI-PROJECT COMPARISON
+// ─────────────────────────────────────────────────────────
+// Fix 9: use find() instead of filter()[0]
+function getProj(id) { return projects.find(p => p.id === id); }
+
+function renderProjectCards() {
+  const cont = document.getElementById('c_projects');
+  cont.innerHTML = projects.map(p =>
+    `<div class="proj-card">
+      <div class="proj-header">
+        <span class="proj-title">Project ${p.id}</span>
+        ${projects.length > 1 ? `<button class="btn btn-sm btn-danger del-proj" data-pid="${p.id}">✕ Remove</button>` : ''}
+      </div>
+      <div class="field" style="max-width:240px;"><label>Initial Investment (k)</label>
+        <input type="number" class="p-inv" data-pid="${p.id}" value="${p.inv}"></div>
+      <div class="sect-label" style="margin-top:10px;">Cash Flows (k)</div>
+      <div class="cf-grid">
+        ${p.cfs.map((cf, i) =>
+          `<div class="field"><label>Year ${i+1}</label>
+            <input type="number" class="p-cf" data-pid="${p.id}" data-idx="${i}" value="${cf}"></div>`
+        ).join('')}
+        <div style="display:flex;flex-direction:column;gap:5px;justify-content:flex-end;">
+          <button class="btn btn-sm add-cf" data-pid="${p.id}">+ Yr</button>
+          <button class="btn btn-sm rem-cf" data-pid="${p.id}">− Yr</button>
+        </div>
+      </div>
+    </div>`
+  ).join('');
+
+  cont.querySelectorAll('.p-inv').forEach(el =>
+    el.addEventListener('input', e => { getProj(+e.target.dataset.pid).inv = parseFloat(e.target.value) || 0; renderComparison(); })
+  );
+  cont.querySelectorAll('.p-cf').forEach(el =>
+    el.addEventListener('input', e => { getProj(+e.target.dataset.pid).cfs[+e.target.dataset.idx] = parseFloat(e.target.value) || 0; renderComparison(); })
+  );
+  cont.querySelectorAll('.del-proj').forEach(btn =>
+    btn.addEventListener('click', e => { projects = projects.filter(p => p.id !== +e.target.dataset.pid); renderProjectCards(); renderComparison(); })
+  );
+  cont.querySelectorAll('.add-cf').forEach(btn =>
+    btn.addEventListener('click', e => { getProj(+e.target.dataset.pid).cfs.push(0); renderProjectCards(); renderComparison(); })
+  );
+  cont.querySelectorAll('.rem-cf').forEach(btn =>
+    btn.addEventListener('click', e => { const p = getProj(+e.target.dataset.pid); if (p.cfs.length > 1) { p.cfs.pop(); renderProjectCards(); renderComparison(); } })
+  );
+}
+
+function renderComparison() {
+  const r = parseFloat(document.getElementById('c_rate').value) / 100;
+  let bestNPV = -Infinity, bestId = null;
+
+  const rows = projects.map(p => {
+    const npv = calcNPV(p.inv, p.cfs, r);
+    const pv  = p.cfs.reduce((s, cf, i) => s + cf / (1+r)**(i+1), 0);
+    const pi  = pv / p.inv;
+    const irr = calcIRR(p.inv, p.cfs);
+    const sc  = countSignChanges(p.inv, p.cfs);
+    // Fix 4: accept/reject driven by NPV
+    const accept = npv > 0;
+    if (npv > bestNPV) { bestNPV = npv; bestId = p.id; }
+    return { id:p.id, npv, pi, irr, pp:calcPP(p.inv, p.cfs), accept, sc };
+  });
+
+  document.getElementById('c_tbody').innerHTML = rows.map(row =>
+    `<tr>
+      <td>${row.id === bestId && row.accept ? '⭐ ' : ''}Project ${row.id}</td>
+      <td style="color:${row.npv>0?'var(--green)':'var(--red)'};">${fmt(row.npv)}</td>
+      <td style="color:${row.pi>1?'var(--green)':'var(--red)'};">${fmt(row.pi,3)}</td>
+      <td style="color:${row.irr>r?'var(--green)':'var(--red)'};">${fmt(row.irr*100,2)}%${row.sc>1?' ⚠':''}</td>
+      <td>${row.pp}</td>
+      <td style="color:${row.accept?'var(--green)':'var(--red)'};">${row.accept ? '✓ Accept' : '✗ Reject'}</td>
+    </tr>`
+  ).join('');
+
+  if (appMode === 'educational') {
+    const best = rows.find(row => row.id === bestId);
+    document.getElementById('c_edu_c').innerHTML =
+      `<div class="step"><strong>NPV Rule:</strong> Accept if NPV > 0; prefer highest NPV when comparing.</div>` +
+      `<div class="step"><strong>PI:</strong> PI = PV of CFs ÷ Investment; accept if PI > 1 (equivalent to NPV > 0 for conventional flows).</div>` +
+      `<div class="step"><strong>IRR:</strong> Accept if IRR > cost of capital (${fmt(r*100,2)}%). ⚠ marks non-conventional flows where multiple IRRs may exist.</div>` +
+      (best && best.accept ? `<div class="step" style="color:var(--green);"><strong>Best: Project ${bestId}</strong> — NPV = ${fmt(bestNPV)}</div>` : '');
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 5 — PORTFOLIO
+// ─────────────────────────────────────────────────────────
+// Fix 10: use unified PORT_IDS constant
+function getWeights() { return PORT_IDS.map(id => parseFloat(document.getElementById(id).value) || 0); }
+function setWeights(w) { PORT_IDS.forEach((id, i) => { document.getElementById(id).value = w[i]; }); }
+
+function renderPortfolio() {
+  const w     = getWeights();
+  const total = w.reduce((s, x) => s + x, 0);
+  const value = parseFloat(document.getElementById('p_value').value) || 0;
+
+  PORT_DISP_IDS.forEach((id, i) => { document.getElementById(id).textContent = w[i].toFixed(0) + '%'; });
+
+  const tv = document.getElementById('p_total');
+  tv.textContent = fmt(total, 0) + '%';
+  tv.className   = 'stat-value ' + (Math.abs(total - 100) < 0.1 ? 'pos' : 'neg');
+
+  document.getElementById('p_tbody').innerHTML =
+    PIE_LABELS.map((lbl, i) =>
+      `<tr><td>${lbl}</td><td>${fmt(w[i],0)}%</td><td>${fmt(w[i]/100*value)}</td></tr>`
+    ).join('') +
+    `<tr style="font-weight:600;"><td>TOTAL</td>` +
+    `<td style="color:${Math.abs(total-100)<0.1?'var(--green)':'var(--red)'};">${fmt(total,0)}%</td>` +
+    `<td>${fmt(value)}</td></tr>`;
+
+  drawPie(w);
+
+  if (appMode === 'educational') {
+    const stocks = w[0];
+    const strat  = stocks >= 60 ? 'Aggressive (High Risk)' : stocks >= 30 ? 'Moderate (Medium Risk)' : 'Conservative (Low Risk)';
+    document.getElementById('p_edu_c').innerHTML =
+      `<div class="step"><strong>Strategy: ${strat}</strong></div>` +
+      `<div class="step">Stocks ≥ 60% → aggressive; 30–60% → moderate; < 30% → conservative.</div>` +
+      `<div class="step">Diversification across asset classes reduces unsystematic risk (Markowitz, 1952).</div>` +
+      `<div class="step">Government bonds provide a safe-haven; equities drive long-run capital growth.</div>`;
+  }
+}
+
+function applyPreset() {
+  const type = document.getElementById('p_type').value;
+  if (PRESETS[type]) setWeights(PRESETS[type]);
+  renderPortfolio();
+}
+
+function drawPie(weights) {
+  if (!weights) weights = getWeights();
+  const canvas  = document.getElementById('pie_canvas');
+  // Fix 11: HiDPI scaling
+  const ctx = scaleCanvas(canvas, 240, 240);
+  const W = 240, H = 240;
+  const cx = W/2, cy = H/2, R = Math.min(cx, cy) - 10, inner = R * 0.5;
+
+  ctx.clearRect(0, 0, W, H);
+  const total = weights.reduce((s, x) => s + x, 0) || 100;
+  let angle = -Math.PI / 2;
+
+  weights.forEach((w, i) => {
+    const slice = (w / total) * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, angle, angle + slice); ctx.closePath();
+    ctx.fillStyle = PIE_COLORS[i]; ctx.fill();
+    if (w > 4) {
+      const mid = angle + slice / 2;
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(w.toFixed(0) + '%', cx + R * 0.68 * Math.cos(mid), cy + R * 0.68 * Math.sin(mid));
+    }
+    angle += slice;
+  });
+
+  // Fix 12: donut hole colour from CSS variable, not hard-coded
+  const bgCard = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#0a0f1e';
+  ctx.beginPath(); ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+  ctx.fillStyle = bgCard; ctx.fill();
+
+  document.getElementById('pie_legend').innerHTML = PIE_LABELS.map((lbl, i) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${PIE_COLORS[i]};"></div>${lbl}</div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// TAB 6 — RISK ANALYSIS
+// ─────────────────────────────────────────────────────────
+function calcRisk() {
+  const rA   = parseFloat(document.getElementById('r_ra').value)   || 0;
+  const rB   = parseFloat(document.getElementById('r_rb').value)   || 0;
+  const sA   = (parseFloat(document.getElementById('r_sa').value)  || 0) / 100;
+  const sB   = (parseFloat(document.getElementById('r_sb').value)  || 0) / 100;
+  const corr = parseFloat(document.getElementById('r_corr').value) || 0;
+  const wA   = parseFloat(document.getElementById('r_wa').value)   / 100;
+  const wB   = 1 - wA;
+
+  const cov      = corr * sA * sB;
+  const variance = wA**2*sA**2 + wB**2*sB**2 + 2*wA*wB*cov;
+  const sd       = Math.sqrt(variance) * 100;
+  const er       = wA * rA + wB * rB;
+  const denom    = sA**2 + sB**2 - 2*sA*sB*corr;
+  const mwA      = denom !== 0 ? (sB**2 - sA*sB*corr) / denom : 0.5;
+  const mwB      = 1 - mwA;
+  const mVar     = mwA**2*sA**2 + mwB**2*sB**2 + 2*mwA*mwB*cov;
+  const mSd      = Math.sqrt(Math.max(0, mVar)) * 100;
+
+  document.getElementById('r_er').textContent  = fmt(er,  2) + '%';
+  // Fix 3: values are in %² — labels already updated in HTML
+  document.getElementById('r_var').textContent = fmt(variance * 10000, 4);
+  document.getElementById('r_sd').textContent  = fmt(sd,  4) + '%';
+  document.getElementById('r_cov').textContent = fmt(cov  * 10000, 4);
+  document.getElementById('r_mw').textContent  = fmt(mwA * 100, 2) + '%';
+  document.getElementById('r_ms').textContent  = fmt(mSd, 4) + '%';
+
+  // Fix 6: drawFrontier always called with all params — no DOM fallback needed
+  drawFrontier(rA, rB, sA*100, sB*100, corr, wA);
+
+  if (appMode === 'educational') {
+    document.getElementById('r_edu_c').innerHTML =
+      `<div class="formula">E(Rp) = XA·E(RA) + XB·E(RB) = ${fmt(wA,2)}·${rA}% + ${fmt(wB,2)}·${rB}% = ${fmt(er,2)}%</div>` +
+      `<div class="formula">Cov(A,B) = ρ·σA·σB = ${fmt(corr,2)}×${fmt(sA,4)}×${fmt(sB,4)} = ${fmt(cov,6)}  →  ${fmt(cov*10000,4)} %²</div>` +
+      `<div class="formula">σ²p = XA²σA² + XB²σB² + 2·XA·XB·Cov(A,B) = ${fmt(variance,6)}  →  ${fmt(variance*10000,4)} %²</div>` +
+      `<div class="formula">σp = √σ²p = ${fmt(sd,4)}%</div>` +
+      `<div class="formula">XA* = (σB² − σA·σB·ρ) / (σA²+σB²−2σA·σB·ρ) = ${fmt(mwA*100,2)}%</div>`;
+  }
+
+  let interp = '';
+  if      (corr >  0.7)  interp = `<strong>High Positive Correlation (${fmt(corr,2)}):</strong> Assets move together — limited diversification benefit.`;
+  else if (corr >  0.3)  interp = `<strong>Moderate Correlation (${fmt(corr,2)}):</strong> Some diversification benefit available.`;
+  else if (corr > -0.3)  interp = `<strong>Low Correlation (${fmt(corr,2)}):</strong> Good diversification potential.`;
+  else                   interp = `<strong>Negative Correlation (${fmt(corr,2)}):</strong> Excellent hedge — assets move in opposite directions.`;
+  if (sd < Math.min(sA*100, sB*100))
+    interp += ` Portfolio σ (${fmt(sd,2)}%) < individual assets — diversification is working.`;
+  document.getElementById('r_interp').innerHTML = interp;
+}
+
+// Fix 6: no DOM-read fallback; Fix 1: correct efficient/inefficient split; Fix 11: HiDPI
+function drawFrontier(rA, rB, sdA, sdB, corr, wA) {
+  const canvas   = document.getElementById('frontier_canvas');
+  // Fix 11: read actual display width for the full-width canvas
+  const cssW     = canvas.offsetWidth  || 840;
+  const cssH     = 440;
+  const ctx      = scaleCanvas(canvas, cssW, cssH);
+  const W = cssW, H = cssH;
+  const M = { t:40, r:50, b:52, l:62 };
+  const cW = W - M.l - M.r, cH = H - M.t - M.b;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Generate all weight combinations
+  const pts = [];
+  for (let wa = 0; wa <= 1; wa += 0.005) {
+    const wb  = 1 - wa;
+    const vr  = wa**2*(sdA/100)**2 + wb**2*(sdB/100)**2 + 2*wa*wb*(sdA/100)*(sdB/100)*corr;
+    pts.push({ x: Math.sqrt(Math.max(0, vr)) * 100, y: wa*rA + wb*rB, wa });
+  }
+
+  const allX = pts.map(p => p.x);
+  const allY = pts.map(p => p.y);
+  const minX = Math.min(...allX);
+  const maxX = Math.max(...allX) * 1.1;
+  const minY = Math.min(...allY, rA, rB) - 4;
+  const maxY = Math.max(...allY, rA, rB) + 4;
+  const sx = v => M.l + (v - minX) / (maxX - minX) * cW;
+  const sy = v => M.t + (1 - (v - minY) / (maxY - minY)) * cH;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(24,32,64,0.8)'; ctx.lineWidth = 1; ctx.setLineDash([4,5]);
+  for (let i = 0; i <= 5; i++) {
+    const gy = M.t + i/5*cH;
+    ctx.beginPath(); ctx.moveTo(M.l, gy); ctx.lineTo(W-M.r, gy); ctx.stroke();
+    const gx = M.l + i/5*cW;
+    ctx.beginPath(); ctx.moveTo(gx, M.t); ctx.lineTo(gx, H-M.b); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle = '#3a4570'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(M.l, M.t); ctx.lineTo(M.l, H-M.b); ctx.lineTo(W-M.r, H-M.b); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle = '#6878a8'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) {
+    const xv = minX + (maxX - minX) * i/5;
+    ctx.fillText(fmt(xv,1), M.l + i/5*cW, H-M.b+16);
+    const yv = minY + (maxY - minY) * (5-i)/5;
+    ctx.textAlign = 'right'; ctx.fillText(fmt(yv,1), M.l-6, M.t + i/5*cH + 4);
+    ctx.textAlign = 'center';
+  }
+  ctx.fillStyle = '#6878a8'; ctx.font = '11px sans-serif';
+  ctx.fillText('Standard Deviation (%)', M.l + cW/2, H-2);
+  ctx.save(); ctx.translate(12, M.t + cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Expected Return (%)', 0, 0); ctx.restore();
+
+  // Find minimum variance portfolio index
+  let mvIdx = 0;
+  pts.forEach((p, i) => { if (p.x < pts[mvIdx].x) mvIdx = i; });
+
+  // Fix 1: efficient half is always toward the HIGHER-return asset.
+  // pts are indexed wA=0→1; expected return = wA*rA + (1-wA)*rB.
+  // If rA > rB: return increases with wA → efficient = pts.slice(mvIdx) (right of MVP)
+  // If rB > rA: return increases toward wA=0 → efficient = pts.slice(0, mvIdx+1) (left of MVP)
+  let ineffPts, effPts;
+  if (rA >= rB) {
+    ineffPts = pts.slice(0, mvIdx + 1);
+    effPts   = pts.slice(mvIdx);
+  } else {
+    effPts   = pts.slice(0, mvIdx + 1);
+    ineffPts = pts.slice(mvIdx);
+  }
+
+  // Draw inefficient segment (dim)
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(37,53,96,0.7)'; ctx.lineWidth = 2;
+  ineffPts.forEach((p, i) => i===0 ? ctx.moveTo(sx(p.x), sy(p.y)) : ctx.lineTo(sx(p.x), sy(p.y)));
+  ctx.stroke();
+
+  // Draw efficient segment (bright gradient)
+  const grad = ctx.createLinearGradient(M.l, M.t, W-M.r, M.t);
+  grad.addColorStop(0, '#10b981'); grad.addColorStop(1, '#4175f5');
+  ctx.beginPath(); ctx.strokeStyle = grad; ctx.lineWidth = 2.5;
+  effPts.forEach((p, i) => i===0 ? ctx.moveTo(sx(p.x), sy(p.y)) : ctx.lineTo(sx(p.x), sy(p.y)));
+  ctx.stroke();
+
+  // Dots
+  function dot(px, py, color, label, sz=7) {
+    ctx.beginPath(); ctx.arc(sx(px), sy(py), sz, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#05080f'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#dde4ff'; ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, sx(px) + 11, sy(py));
+  }
+
+  dot(sdA, rA, '#f05252', 'Asset A');
+  dot(sdB, rB, '#10b981', 'Asset B');
+
+  // Current portfolio
+  const wB2 = 1 - wA;
+  const cpV = wA**2*(sdA/100)**2 + wB2**2*(sdB/100)**2 + 2*wA*wB2*(sdA/100)*(sdB/100)*corr;
+  dot(Math.sqrt(Math.max(0, cpV)) * 100, wA*rA + wB2*rB, '#f59e0b', `Current (${fmt(wA*100,0)}%A)`, 9);
+
+  // Minimum variance portfolio
+  const mvP = pts[mvIdx];
+  dot(mvP.x, mvP.wa*rA + (1-mvP.wa)*rB, '#a78bfa', `Min-Var (${fmt(mvP.wa*100,0)}%A)`, 7);
+
+  // Title
+  ctx.fillStyle = '#6878a8'; ctx.font = '600 12px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('Risk / Return Trade-off — Efficient Frontier', M.l + cW/2, 8);
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Tab switching
+  document.querySelectorAll('.tab-nav button').forEach(btn =>
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab))
+  );
+
+  // Mode toggle
+  document.querySelectorAll('.mode-toggle button').forEach(btn =>
+    btn.addEventListener('click', () => setMode(btn.dataset.mode))
+  );
+
+  // ── General ──
+  renderGenCFInputs();
+  document.getElementById('gen_inv').addEventListener('input', calcGeneral);
+  const genR = document.getElementById('gen_rate');
+  genR.addEventListener('input', () => { document.getElementById('gen_rate_val').textContent = parseFloat(genR.value).toFixed(1) + '%'; calcGeneral(); });
+  document.getElementById('gen_add_yr').addEventListener('click', () => { genCFs.push(0); renderGenCFInputs(); calcGeneral(); });
+  document.getElementById('gen_rem_yr').addEventListener('click', () => { if (genCFs.length > 1) { genCFs.pop(); renderGenCFInputs(); calcGeneral(); } });
+  calcGeneral();
+
+  // ── Financial Model ──
+  renderModelRevInputs(lastModelLife);
+  ['m_equip', 'm_life', 'm_opex'].forEach(id => document.getElementById(id).addEventListener('input', calcModel));
+  [['m_rate',   'm_rate_val',   v => parseFloat(v).toFixed(1) + '%'],
+   ['m_tax',    'm_tax_val',    v => parseFloat(v).toFixed(0) + '%'],
+   ['m_growth', 'm_growth_val', v => parseFloat(v).toFixed(1) + '%']
+  ].forEach(([id, dispId, fmt2]) => {
+    const el = document.getElementById(id);
+    document.getElementById(dispId).textContent = fmt2(el.value);
+    el.addEventListener('input', () => { document.getElementById(dispId).textContent = fmt2(el.value); calcModel(); });
+  });
+  calcModel();
+
+  // ── Annuity ──
+  ['a_inv','a_pmt1','a_n1','a_pmt2','a_n2'].forEach(id => document.getElementById(id).addEventListener('input', calcAnnuity));
+  const aR = document.getElementById('a_rate');
+  aR.addEventListener('input', () => { document.getElementById('a_rate_val').textContent = parseFloat(aR.value).toFixed(1) + '%'; calcAnnuity(); });
+  calcAnnuity();
+
+  // ── Comparison ──
+  const cR = document.getElementById('c_rate');
+  cR.addEventListener('input', () => { document.getElementById('c_rate_val').textContent = parseFloat(cR.value).toFixed(1) + '%'; renderComparison(); });
+  document.getElementById('c_add').addEventListener('click', () => { projects.push({ id:nextProjId++, inv:1000, cfs:[200,300,400,500,600] }); renderProjectCards(); renderComparison(); });
+  renderProjectCards(); renderComparison();
+
+  // ── Portfolio ──
+  document.getElementById('p_type').addEventListener('change', applyPreset);
+  document.getElementById('p_value').addEventListener('input', renderPortfolio);
+  // Fix 10: use unified PORT_IDS constant for slider bindings
+  PORT_IDS.forEach(movedId => {
+    document.getElementById(movedId).addEventListener('input', () => {
+      document.getElementById('p_type').value = 'custom';
+      const movedVal = Math.min(100, parseFloat(document.getElementById(movedId).value) || 0);
+      document.getElementById(movedId).value = movedVal;
+      const others      = PORT_IDS.filter(id => id !== movedId);
+      const othersTotal = others.reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+      const budget      = 100 - movedVal;
+      if (othersTotal > 0 && budget < othersTotal) {
+        const scale = budget / othersTotal;
+        others.forEach(id => {
+          document.getElementById(id).value = Math.max(0, Math.round((parseFloat(document.getElementById(id).value) || 0) * scale));
+        });
+        // Fix rounding drift
+        const drift = 100 - PORT_IDS.reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+        if (drift !== 0) {
+          const largest = others.reduce((a, b) => (parseFloat(document.getElementById(a).value)||0) >= (parseFloat(document.getElementById(b).value)||0) ? a : b);
+          document.getElementById(largest).value = Math.max(0, (parseFloat(document.getElementById(largest).value)||0) + drift);
+        }
+      }
+      renderPortfolio();
+    });
+  });
+  renderPortfolio();
+
+  // ── Risk ──
+  ['r_ra','r_rb','r_sa','r_sb'].forEach(id => document.getElementById(id).addEventListener('input', calcRisk));
+  const rCorr = document.getElementById('r_corr');
+  rCorr.addEventListener('input', () => { document.getElementById('r_corr_val').textContent = parseFloat(rCorr.value).toFixed(2); calcRisk(); });
+  const rWa = document.getElementById('r_wa');
+  rWa.addEventListener('input', () => { document.getElementById('r_wa_val').textContent = parseFloat(rWa.value).toFixed(0) + '%'; calcRisk(); });
+  calcRisk();
+});
+</script>
+</body>
+</html>
