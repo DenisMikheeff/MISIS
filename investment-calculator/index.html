@@ -191,6 +191,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
   <button data-tab="compare">Multi-Project</button>
   <button data-tab="portfolio">Portfolio</button>
   <button data-tab="risk">Risk Analysis</button>
+  <button data-tab="deriv">Derivatives &amp; M&amp;A</button>
 </nav>
 
 <!-- ═══ TAB 1: GENERAL ═══ -->
@@ -436,6 +437,138 @@ tr:hover td { background: rgba(255,255,255,.02); }
 </div>
 </section>
 
+<!-- ═══ TAB 7: DERIVATIVES & M&A ═══ -->
+<section id="deriv" class="section">
+
+<!-- CARD 1: FORWARD/FUTURES -->
+<div class="card">
+  <div class="card-title">Forward &amp; Futures Pricing</div>
+  <div class="card-sub">Fair forward price F = S(1+r)<sup>T</sup> &middot; Long/short payoffs &middot; Arbitrage check</div>
+  <div class="grid2">
+    <div class="field"><label>Spot Price S (today)</label><input type="number" id="d_spot" value="1400" step="1"></div>
+    <div class="field"><label>Delivery Price K (agreed at contract)</label><input type="number" id="d_K" value="1400" step="1"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Risk-Free Rate r</span><span class="slider-val" id="d_rate_val">5.0%</span></div>
+      <input type="range" id="d_rate" min="0" max="30" step="0.1" value="5">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Time to Maturity T (years)</span><span class="slider-val" id="d_T_val">1.0</span></div>
+      <input type="range" id="d_T" min="0.1" max="10" step="0.1" value="1">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="sect-label">Realised Spot at Maturity (for payoff)</div>
+  <div style="max-width:420px;">
+    <div class="field"><label>S<sub>T</sub> &mdash; Spot Price at Maturity</label><input type="number" id="d_St" value="1500" step="10"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box" id="d_F_box"><div class="stat-label">Fair Forward Price F = S(1+r)<sup>T</sup></div><div class="stat-value" id="d_F">&#8212;</div></div>
+    <div class="stat-box" id="d_arb_box"><div class="stat-label">F &minus; K (Arbitrage?)</div><div class="stat-value" id="d_arb">&#8212;</div></div>
+    <div class="stat-box" id="d_long_box"><div class="stat-label">Long Payoff S<sub>T</sub> &minus; K</div><div class="stat-value" id="d_long">&#8212;</div></div>
+    <div class="stat-box" id="d_short_box"><div class="stat-label">Short Payoff K &minus; S<sub>T</sub></div><div class="stat-value" id="d_short">&#8212;</div></div>
+  </div>
+  <div style="margin-top:22px;">
+    <div class="sect-label">Payoff Diagram &mdash; Long &amp; Short Forward</div>
+    <canvas id="fwd_canvas" style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);width:100%;display:block;"></canvas>
+  </div>
+  <div class="edu-block" id="d_fwd_edu"><h4>Forward Contract Formulas</h4><div id="d_fwd_edu_c"></div></div>
+  <div class="interp" id="d_fwd_interp"></div>
+</div>
+
+<!-- CARD 2: OPTIONS & PUT-CALL PARITY -->
+<div class="card">
+  <div class="card-title">Options &amp; Put-Call Parity</div>
+  <div class="card-sub">c + Xe<sup>&minus;rT</sup> = p + S<sub>0</sub> &middot; Four payoff profiles &middot; Arbitrage detection</div>
+  <div class="grid2">
+    <div class="field"><label>Current Stock Price S<sub>0</sub></label><input type="number" id="o_S0" value="31" step="0.1"></div>
+    <div class="field"><label>Strike Price X</label><input type="number" id="o_X" value="30" step="0.1"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="field"><label>Call Price c</label><input type="number" id="o_c" value="3" step="0.01"></div>
+    <div class="field"><label>Put Price p</label><input type="number" id="o_p" value="2.25" step="0.01"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Risk-Free Rate r</span><span class="slider-val" id="o_rate_val">10.0%</span></div>
+      <input type="range" id="o_rate" min="0" max="30" step="0.1" value="10">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label"><span class="lbl">Time to Maturity T (years)</span><span class="slider-val" id="o_T_val">0.25</span></div>
+      <input type="range" id="o_T" min="0.05" max="5" step="0.05" value="0.25">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box"><div class="stat-label">PV of Strike Xe<sup>&minus;rT</sup></div><div class="stat-value" id="o_pvx">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Portfolio A: c + Xe<sup>&minus;rT</sup></div><div class="stat-value" id="o_lhs">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Portfolio B: p + S<sub>0</sub></div><div class="stat-value" id="o_rhs">&#8212;</div></div>
+    <div class="stat-box" id="o_par_box"><div class="stat-label">Parity Difference (A &minus; B)</div><div class="stat-value" id="o_diff">&#8212;</div></div>
+  </div>
+  <div style="margin-top:22px;">
+    <div class="sect-label">Four Standard Option Payoff Profiles at Maturity</div>
+    <canvas id="opt_canvas" style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);width:100%;display:block;"></canvas>
+  </div>
+  <div class="edu-block" id="o_edu"><h4>Put-Call Parity &amp; Option Payoffs</h4><div id="o_edu_c"></div></div>
+  <div class="interp" id="o_interp"></div>
+</div>
+
+<!-- CARD 3: M&A CASH -->
+<div class="card">
+  <div class="card-title">M&amp;A Valuation &mdash; Cash Acquisition</div>
+  <div class="card-sub">Economic benefits &middot; Acquisition costs &middot; NPV for acquirer &middot; Shareholder gains</div>
+  <div class="grid2">
+    <div class="field"><label>Acquirer Value PV<sub>A</sub> (millions)</label><input type="number" id="ma_PVA" value="200" step="1"></div>
+    <div class="field"><label>Target Value PV<sub>B</sub> (millions)</label><input type="number" id="ma_PVB" value="50" step="1"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="field"><label>Combined Entity Value PV<sub>AB</sub> (millions)</label><input type="number" id="ma_PVAB" value="275" step="1"></div>
+    <div class="field"><label>Cash Payment for B (millions)</label><input type="number" id="ma_cash" value="65" step="1"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box"><div class="stat-label">Synergies &Delta;PV<sub>AB</sub></div><div class="stat-value" id="ma_syn">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Acquisition Costs</div><div class="stat-value" id="ma_cost">&#8212;</div></div>
+    <div class="stat-box" id="ma_npv_box"><div class="stat-label">NPV for Acquirer A</div><div class="stat-value" id="ma_npv">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">New Value of A</div><div class="stat-value" id="ma_newA">&#8212;</div></div>
+    <div class="stat-box" id="ma_gainB_box"><div class="stat-label">Gain for B Shareholders</div><div class="stat-value" id="ma_gainB">&#8212;</div></div>
+    <div class="stat-box" id="ma_gainA_box"><div class="stat-label">Gain for A Shareholders</div><div class="stat-value" id="ma_gainA">&#8212;</div></div>
+  </div>
+  <div class="edu-block" id="ma_edu"><h4>M&amp;A Cash Valuation Formulas</h4><div id="ma_edu_c"></div></div>
+  <div class="interp" id="ma_interp"></div>
+</div>
+
+<!-- CARD 4: M&A SHARES -->
+<div class="card">
+  <div class="card-title">M&amp;A Payment in Shares</div>
+  <div class="card-sub">Post-merger share price P<sub>AB</sub> &middot; Actual acquisition cost &middot; NPV under share payment</div>
+  <div class="grid2">
+    <div class="field"><label>Acquirer Value PV<sub>A</sub> (millions)</label><input type="number" id="ms_PVA" value="200" step="1"></div>
+    <div class="field"><label>Target Value PV<sub>B</sub> (millions)</label><input type="number" id="ms_PVB" value="50" step="1"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="field"><label>Synergies &Delta;PV<sub>AB</sub> (millions)</label><input type="number" id="ms_syn" value="25" step="1"></div>
+    <div class="field"><label>Acquirer Shares Outstanding (thousands)</label><input type="number" id="ms_sharesA" value="1000" step="10"></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="field"><label>New Shares Offered to B (thousands)</label><input type="number" id="ms_N" value="325" step="1"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid3">
+    <div class="stat-box"><div class="stat-label">Combined Value PV<sub>AB</sub></div><div class="stat-value" id="ms_PVAB">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Post-Merger Share Price P<sub>AB</sub></div><div class="stat-value" id="ms_PAB">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">Actual Acquisition Cost</div><div class="stat-value" id="ms_cost">&#8212;</div></div>
+    <div class="stat-box" id="ms_npv_box"><div class="stat-label">NPV for Acquirer A</div><div class="stat-value" id="ms_npv">&#8212;</div></div>
+    <div class="stat-box"><div class="stat-label">B Shareholders&#39; Stake in AB</div><div class="stat-value" id="ms_pctB">&#8212;</div></div>
+  </div>
+  <div class="edu-block" id="ms_edu"><h4>Share Payment Formulas</h4><div id="ms_edu_c"></div></div>
+  <div class="interp" id="ms_interp"></div>
+</div>
+
+</section>
+
 </div>
 <script>
 // ─────────────────────────────────────────────────────────
@@ -538,13 +671,14 @@ function switchTab(tab) {
   // Fix 6: call calcRisk (not drawFrontier directly) so we don't duplicate DOM-read logic
   if (tab === 'portfolio') setTimeout(drawPie, 30);
   if (tab === 'risk')      setTimeout(calcRisk, 30);
+  if (tab === 'deriv')     setTimeout(calcDerivTab, 30);
 }
 
 function setMode(mode) {
   appMode = mode;
   document.querySelectorAll('.mode-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   document.querySelectorAll('.edu-block').forEach(el => el.classList.toggle('visible', mode === 'educational'));
-  calcGeneral(); calcModel(); calcAnnuity(); renderComparison(); renderPortfolio(); calcRisk();
+  calcGeneral(); calcModel(); calcAnnuity(); renderComparison(); renderPortfolio(); calcRisk(); calcDerivTab();
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1071,6 +1205,388 @@ function drawFrontier(rA, rB, sdA, sdB, corr, wA) {
   ctx.fillText('Risk / Return Trade-off — Efficient Frontier', M.l + cW/2, 8);
 }
 
+
+// ─────────────────────────────────────────────────────────
+// TAB 7 — DERIVATIVES & M&A
+// ─────────────────────────────────────────────────────────
+
+function calcDerivTab() {
+  calcForward();
+  calcOptions();
+  calcMergerCash();
+  calcMergerShares();
+}
+
+// ── Forward / Futures ──────────────────────────────────
+function calcForward() {
+  const S  = parseFloat(document.getElementById('d_spot').value) || 0;
+  const K  = parseFloat(document.getElementById('d_K').value)    || 0;
+  const r  = parseFloat(document.getElementById('d_rate').value) / 100;
+  const T  = parseFloat(document.getElementById('d_T').value)    || 1;
+  const St = parseFloat(document.getElementById('d_St').value)   || 0;
+
+  const F        = S * (1 + r) ** T;
+  const longPay  = St - K;
+  const shortPay = K  - St;
+  const arbAmt   = F  - K;
+  const hasArb   = Math.abs(arbAmt) > 0.005;
+
+  document.getElementById('d_F').textContent     = fmt(F, 2);
+  document.getElementById('d_arb').textContent   = hasArb ? fmt(arbAmt, 2) : '✓ None';
+  document.getElementById('d_long').textContent  = fmt(longPay, 2);
+  document.getElementById('d_short').textContent = fmt(shortPay, 2);
+
+  const fBox  = document.getElementById('d_F_box');
+  const abBox = document.getElementById('d_arb_box');
+  fBox.classList.toggle('pos', !hasArb);   fBox.classList.toggle('neg', hasArb);
+  abBox.classList.toggle('neg', hasArb);   abBox.classList.toggle('pos', !hasArb);
+  colorBox('d_long_box',  'd_long',  longPay  >= 0);
+  colorBox('d_short_box', 'd_short', shortPay >= 0);
+
+  drawForwardPayoff(K, St, S, r, T);
+
+  if (appMode === 'educational') {
+    document.getElementById('d_fwd_edu_c').innerHTML =
+      `<div class="formula">F = S &times; (1+r)<sup>T</sup> = ${fmt(S,2)} &times; (1+${fmt(r,4)})<sup>${fmt(T,2)}</sup> = ${fmt(F,2)}</div>` +
+      `<div class="step">S = spot price today | r = annual risk-free rate | T = years to delivery</div>` +
+      `<div class="formula">Long payoff = S<sub>T</sub> &minus; K = ${fmt(St,2)} &minus; ${fmt(K,2)} = ${fmt(longPay,2)}</div>` +
+      `<div class="formula">Short payoff = K &minus; S<sub>T</sub> = ${fmt(K,2)} &minus; ${fmt(St,2)} = ${fmt(shortPay,2)}</div>` +
+      `<div class="step">Forwards are OTC instruments with zero upfront cost. Payoff is symmetric and linear in S<sub>T</sub>. Futures are exchange-traded equivalents with daily mark-to-market.</div>` +
+      (hasArb
+        ? `<div class="step" style="color:var(--amber);">&#9888; Arbitrage exists (F &ne; K). ` +
+          (F > K
+            ? `F &gt; K: sell the forward at K, borrow S at r, buy asset today. Profit = ${fmt(arbAmt,2)} (lock in at maturity).`
+            : `F &lt; K: buy the forward at K, short-sell asset, invest proceeds at r. Profit = ${fmt(-arbAmt,2)}.`) + `</div>`
+        : `<div class="step" style="color:var(--green);">&#10003; Contract is fairly priced &mdash; no arbitrage opportunity.</div>`);
+  }
+
+  document.getElementById('d_fwd_interp').innerHTML = hasArb
+    ? `<span class="bad">&#9888; ARBITRAGE OPPORTUNITY</span> &mdash; Fair value F = ${fmt(F,2)} but agreed K = ${fmt(K,2)} (gap: ${fmt(arbAmt,2)}). ` +
+      (F > K
+        ? `Strategy: sell forward, carry asset. `
+        : `Strategy: buy forward, short-sell asset. `) +
+      `Riskless profit available until K is adjusted.`
+    : `<span class="ok">&#10003; FAIRLY PRICED</span> &mdash; Delivery price K = ${fmt(K,2)} equals fair forward F = ${fmt(F,2)}. No arbitrage.`;
+}
+
+function drawForwardPayoff(K, St, S, r, T) {
+  const canvas = document.getElementById('fwd_canvas');
+  const cssW   = canvas.offsetWidth || 840;
+  const cssH   = 300;
+  const ctx    = scaleCanvas(canvas, cssW, cssH);
+  const W = cssW, H = cssH;
+  const M = { t:34, r:70, b:46, l:72 };
+  const cW = W - M.l - M.r, cH = H - M.t - M.b;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const xMin  = 0;
+  const xMax  = Math.max(K * 2.5, St > 0 ? St * 1.25 : 0);
+  const ySpan = K * 1.4;
+  const yMin  = -ySpan, yMax = ySpan;
+
+  const sx = v => M.l + (v - xMin) / (xMax - xMin) * cW;
+  const sy = v => M.t + (1 - (v - yMin) / (yMax - yMin)) * cH;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(24,32,64,0.8)'; ctx.lineWidth = 1; ctx.setLineDash([4,5]);
+  for (let i = 0; i <= 4; i++) {
+    ctx.beginPath(); ctx.moveTo(M.l, M.t+i/4*cH); ctx.lineTo(W-M.r, M.t+i/4*cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(M.l+i/4*cW, M.t); ctx.lineTo(M.l+i/4*cW, H-M.b); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Zero line
+  ctx.strokeStyle = '#3a4570'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(M.l, sy(0)); ctx.lineTo(W-M.r, sy(0)); ctx.stroke();
+  // Axes
+  ctx.beginPath(); ctx.moveTo(M.l, M.t); ctx.lineTo(M.l, H-M.b); ctx.lineTo(W-M.r, H-M.b); ctx.stroke();
+
+  // Short forward: payoff = K - St  (red, downward slope)
+  ctx.beginPath(); ctx.strokeStyle = '#f05252'; ctx.lineWidth = 2.5;
+  ctx.moveTo(sx(xMin), sy(K - xMin));
+  ctx.lineTo(sx(xMax), sy(K - xMax));
+  ctx.stroke();
+
+  // Long forward: payoff = St - K  (green, upward slope) — drawn on top
+  ctx.beginPath(); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5;
+  ctx.moveTo(sx(xMin), sy(xMin - K));
+  ctx.lineTo(sx(xMax), sy(xMax - K));
+  ctx.stroke();
+
+  // Dashed vertical at K
+  ctx.setLineDash([5,5]); ctx.strokeStyle = '#6878a8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx(K), M.t); ctx.lineTo(sx(K), H-M.b); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Dashed vertical at St (amber)
+  if (St > 0 && Math.abs(St - K) > 0.5) {
+    ctx.setLineDash([3,4]); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx(St), M.t); ctx.lineTo(sx(St), H-M.b); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Payoff dots at St
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  if (St > 0) {
+    const drawDot = (x, y, color) => {
+      ctx.beginPath(); ctx.arc(sx(x), sy(clamp(y, yMin, yMax)), 6, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = '#05080f'; ctx.lineWidth = 2; ctx.stroke();
+    };
+    drawDot(St, St - K, '#10b981');
+    drawDot(St, K - St, '#f05252');
+  }
+
+  // Tick labels
+  ctx.fillStyle = '#6878a8'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const xv = xMin + (xMax - xMin) * i / 4;
+    ctx.fillText(fmt(xv, 0), M.l + i/4*cW, H-M.b+14);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const yv = yMin + (yMax - yMin) * (4-i) / 4;
+    ctx.fillText(fmt(yv, 0), M.l-6, M.t + i/4*cH + 4);
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#6878a8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('Spot Price at Maturity  Sₜ', M.l + cW/2, H-2);
+  ctx.save(); ctx.translate(12, M.t+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Profit / Payoff', 0, 0); ctx.restore();
+
+  // Legend (top-right)
+  const lx = W-M.r-8, ly = M.t+10;
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillStyle = '#10b981'; ctx.fillText('● Long  (Sₜ − K)', lx, ly);
+  ctx.fillStyle = '#f05252'; ctx.fillText('● Short (K − Sₜ)', lx, ly+16);
+
+  // K + St axis annotations
+  ctx.fillStyle = '#6878a8'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('K='+fmt(K,0), sx(K), M.t-4);
+  if (St > 0) { ctx.fillStyle = '#f59e0b'; ctx.fillText('Sₜ='+fmt(St,0), sx(St), M.t-4); }
+
+  // Title
+  ctx.fillStyle = '#6878a8'; ctx.font = '600 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('Long & Short Forward Payoff', M.l+cW/2, 8);
+}
+
+// ── Options & Put-Call Parity ──────────────────────────
+function calcOptions() {
+  const S0 = parseFloat(document.getElementById('o_S0').value)   || 0;
+  const X  = parseFloat(document.getElementById('o_X').value)    || 0;
+  const c  = parseFloat(document.getElementById('o_c').value)    || 0;
+  const p  = parseFloat(document.getElementById('o_p').value)    || 0;
+  const r  = parseFloat(document.getElementById('o_rate').value) / 100;
+  const T  = parseFloat(document.getElementById('o_T').value)    || 0.25;
+
+  const pvX = X * Math.exp(-r * T);
+  const lhs = c + pvX;    // Portfolio A
+  const rhs = p + S0;     // Portfolio B
+  const diff = lhs - rhs;
+  const par  = Math.abs(diff) < 0.005;
+
+  document.getElementById('o_pvx').textContent  = fmt(pvX, 4);
+  document.getElementById('o_lhs').textContent  = fmt(lhs, 4);
+  document.getElementById('o_rhs').textContent  = fmt(rhs, 4);
+  document.getElementById('o_diff').textContent = par ? '≈ 0  ✓' : fmt(diff, 4);
+  colorBox('o_par_box', 'o_diff', par);
+
+  drawOptionPayoffs(X);
+
+  if (appMode === 'educational') {
+    document.getElementById('o_edu_c').innerHTML =
+      `<div class="formula">Put-Call Parity (no dividends):  c + Xe<sup>&minus;rT</sup> = p + S<sub>0</sub></div>` +
+      `<div class="step">Portfolio A: call option + cash PV(X) = ${fmt(c,2)} + ${fmt(X,2)}&times;e<sup>&minus;${fmt(r,4)}&times;${fmt(T,4)}</sup> = <strong>${fmt(lhs,4)}</strong></div>` +
+      `<div class="step">Portfolio B: put option + stock = ${fmt(p,2)} + ${fmt(S0,2)} = <strong>${fmt(rhs,4)}</strong></div>` +
+      `<div class="step">Both portfolios pay max(S<sub>T</sub>, X) at maturity &rarr; by no-arbitrage they must cost the same today.</div>` +
+      (par
+        ? `<div class="step" style="color:var(--green);">&#10003; Parity holds &mdash; prices are mutually consistent.</div>`
+        : `<div class="step" style="color:var(--amber);">&#9888; Parity violated by ${fmt(Math.abs(diff),4)}. ` +
+          (diff > 0
+            ? `A is overpriced: sell call, buy put + stock, borrow Xe<sup>&minus;rT</sup>.`
+            : `B is overpriced: buy call, invest Xe<sup>&minus;rT</sup>, sell put + short stock.`) + `</div>`);
+  }
+
+  document.getElementById('o_interp').innerHTML = par
+    ? `<span class="ok">&#10003; PARITY HOLDS</span> &mdash; c + Xe<sup>&minus;rT</sup> = p + S<sub>0</sub> = ${fmt(lhs,4)}. No arbitrage opportunity.`
+    : `<span class="bad">&#9888; PARITY VIOLATED</span> &mdash; ` +
+      `Portfolio A = ${fmt(lhs,4)}, Portfolio B = ${fmt(rhs,4)}, gap = ${fmt(diff,4)}. ` +
+      (diff > 0
+        ? `<strong>Arbitrage:</strong> sell call + invest −Xe<sup>&minus;rT</sup>; buy put + stock.`
+        : `<strong>Arbitrage:</strong> buy call + invest Xe<sup>&minus;rT</sup>; sell put + short stock.`);
+}
+
+function drawOptionPayoffs(X) {
+  const canvas = document.getElementById('opt_canvas');
+  const cssW   = canvas.offsetWidth || 840;
+  const cssH   = 380;
+  const ctx    = scaleCanvas(canvas, cssW, cssH);
+  const W = cssW, H = cssH;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const xMax   = X * 2.4;
+  const yMax   = X * 0.8;
+  const yMin   = -X * 0.8;
+
+  const panels = [
+    { title:'Long Call',  fn: St => Math.max(0, St - X), color:'#10b981', row:0, col:0 },
+    { title:'Short Call', fn: St => -Math.max(0, St - X), color:'#f05252', row:0, col:1 },
+    { title:'Long Put',   fn: St => Math.max(0, X - St),  color:'#4175f5', row:1, col:0 },
+    { title:'Short Put',  fn: St => -Math.max(0, X - St), color:'#f59e0b', row:1, col:1 },
+  ];
+
+  const panW = W / 2, panH = H / 2;
+
+  panels.forEach(pan => {
+    const ox = pan.col * panW, oy = pan.row * panH;
+    const m  = { t:34, b:28, l:52, r:14 };
+    const pw = panW - m.l - m.r, ph = panH - m.t - m.b;
+
+    const sx  = St  => ox + m.l + (St / xMax) * pw;
+    const sy  = val => oy + m.t + (1 - (val - yMin) / (yMax - yMin)) * ph;
+
+    // Panel border
+    ctx.strokeStyle = '#182040'; ctx.lineWidth = 1;
+    ctx.strokeRect(ox + 0.5, oy + 0.5, panW - 1, panH - 1);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(24,32,64,0.7)'; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+    [0.25, 0.5, 0.75].forEach(f => {
+      ctx.beginPath(); ctx.moveTo(ox+m.l, oy+m.t+f*ph); ctx.lineTo(ox+m.l+pw, oy+m.t+f*ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox+m.l+f*pw, oy+m.t); ctx.lineTo(ox+m.l+f*pw, oy+m.t+ph); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    // Zero / profit axis
+    ctx.strokeStyle = '#3a4570'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(ox+m.l, sy(0)); ctx.lineTo(ox+m.l+pw, sy(0)); ctx.stroke();
+    // y-axis
+    ctx.beginPath(); ctx.moveTo(ox+m.l, oy+m.t); ctx.lineTo(ox+m.l, oy+m.t+ph); ctx.stroke();
+
+    // Strike price vertical dashed
+    ctx.setLineDash([5,4]); ctx.strokeStyle = '#6878a8'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx(X), oy+m.t); ctx.lineTo(sx(X), oy+m.t+ph); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Payoff curve (200 segments for smooth kink)
+    ctx.beginPath(); ctx.strokeStyle = pan.color; ctx.lineWidth = 2.5;
+    for (let i = 0; i <= 200; i++) {
+      const St  = (i / 200) * xMax;
+      const pay = Math.max(yMin, Math.min(yMax, pan.fn(St)));
+      i === 0 ? ctx.moveTo(sx(St), sy(pay)) : ctx.lineTo(sx(St), sy(pay));
+    }
+    ctx.stroke();
+
+    // X marker label on x-axis
+    ctx.fillStyle = '#6878a8'; ctx.font = '10px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('X', sx(X), oy+m.t+ph+3);
+    ctx.fillText('Sₜ', ox+m.l+pw-2, oy+m.t+ph+3);
+
+    // Zero label on y-axis
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('0', ox+m.l-4, sy(0));
+
+    // Panel title
+    ctx.fillStyle = pan.color; ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(pan.title, ox + panW/2, oy+8);
+  });
+
+  // Divider lines between panels (cosmetic, slightly bolder)
+  ctx.strokeStyle = '#182040'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+}
+
+// ── M&A Cash Acquisition ──────────────────────────────
+function calcMergerCash() {
+  const PVA  = parseFloat(document.getElementById('ma_PVA').value)  || 0;
+  const PVB  = parseFloat(document.getElementById('ma_PVB').value)  || 0;
+  const PVAB = parseFloat(document.getElementById('ma_PVAB').value) || 0;
+  const cash = parseFloat(document.getElementById('ma_cash').value) || 0;
+
+  const syn   = PVAB - PVA - PVB;   // ΔPV_AB = economic benefits
+  const costs = cash - PVB;          // premium paid over standalone B
+  const npv   = syn  - costs;        // NPV for A's shareholders
+  const newA  = PVA  + npv;
+  const gainB = PVB  > 0 ? (cash / PVB  - 1) * 100 : 0;
+  const gainA = PVA  > 0 ? (newA / PVA  - 1) * 100 : 0;
+
+  document.getElementById('ma_syn').textContent   = fmt(syn, 2);
+  document.getElementById('ma_cost').textContent  = fmt(costs, 2);
+  document.getElementById('ma_npv').textContent   = fmt(npv, 2);
+  document.getElementById('ma_newA').textContent  = fmt(newA, 2);
+  document.getElementById('ma_gainB').textContent = fmt(gainB, 2) + '%';
+  document.getElementById('ma_gainA').textContent = fmt(gainA, 2) + '%';
+
+  colorBox('ma_npv_box', 'ma_npv', npv > 0);
+  const gBBox = document.getElementById('ma_gainB_box');
+  const gABox = document.getElementById('ma_gainA_box');
+  gBBox.classList.toggle('pos', gainB > 0); gBBox.classList.toggle('neg', gainB <= 0);
+  gABox.classList.toggle('pos', gainA > 0); gABox.classList.toggle('neg', gainA <= 0);
+
+  if (appMode === 'educational') {
+    document.getElementById('ma_edu_c').innerHTML =
+      `<div class="formula">Benefits = PV<sub>AB</sub> &minus; (PV<sub>A</sub> + PV<sub>B</sub>) = ${fmt(PVAB,2)} &minus; (${fmt(PVA,2)} + ${fmt(PVB,2)}) = ${fmt(syn,2)}</div>` +
+      `<div class="formula">Costs = Cash payment &minus; PV<sub>B</sub> = ${fmt(cash,2)} &minus; ${fmt(PVB,2)} = ${fmt(costs,2)}</div>` +
+      `<div class="formula">NPV<sub>A</sub> = Benefits &minus; Costs = ${fmt(syn,2)} &minus; ${fmt(costs,2)} = ${fmt(npv,2)}</div>` +
+      `<div class="step">B shareholders receive: ${fmt(cash,2)}M for a business worth ${fmt(PVB,2)}M &rarr; ${fmt(gainB,2)}% premium.</div>` +
+      `<div class="step">A's value after merger: ${fmt(PVA,2)} + ${fmt(npv,2)} = ${fmt(newA,2)}M &rarr; ${fmt(gainA,2)}% gain for A shareholders.</div>` +
+      `<div class="step">Key insight: with cash payment, acquisition costs are independent of the synergies achieved.</div>`;
+  }
+
+  document.getElementById('ma_interp').innerHTML = npv > 0
+    ? `<span class="ok">&#10003; VALUE-CREATING</span> &mdash; Synergies ${fmt(syn,2)}M exceed premium ${fmt(costs,2)}M. ` +
+      `A gains ${fmt(gainA,2)}%, B shareholders gain ${fmt(gainB,2)}%.`
+    : `<span class="bad">&#10007; VALUE-DESTROYING</span> &mdash; Premium paid (${fmt(costs,2)}M) exceeds synergies (${fmt(syn,2)}M). ` +
+      `NPV for A = ${fmt(npv,2)}M. Reconsider the offer price or re-estimate synergies.`;
+}
+
+// ── M&A Payment in Shares ─────────────────────────────
+function calcMergerShares() {
+  const PVA     = parseFloat(document.getElementById('ms_PVA').value)    || 0;
+  const PVB     = parseFloat(document.getElementById('ms_PVB').value)    || 0;
+  const syn     = parseFloat(document.getElementById('ms_syn').value)    || 0;
+  const sharesA = (parseFloat(document.getElementById('ms_sharesA').value) || 0) / 1000; // k → M
+  const N       = (parseFloat(document.getElementById('ms_N').value)    || 0) / 1000;    // k → M
+
+  const PVAB  = PVA + PVB + syn;
+  const total = sharesA + N;
+  const PAB   = total > 0 ? PVAB / total : 0;   // M$/M shares = $/share
+  const cost  = N * PAB - PVB;                   // actual cost in $M
+  const npv   = syn - cost;
+  const pctB  = total > 0 ? (N / total) * 100 : 0;
+
+  document.getElementById('ms_PVAB').textContent = fmt(PVAB, 2);
+  document.getElementById('ms_PAB').textContent  = '$' + fmt(PAB, 2);
+  document.getElementById('ms_cost').textContent = fmt(cost, 2);
+  document.getElementById('ms_npv').textContent  = fmt(npv, 2);
+  document.getElementById('ms_pctB').textContent = fmt(pctB, 2) + '%';
+
+  colorBox('ms_npv_box', 'ms_npv', npv > 0);
+
+  if (appMode === 'educational') {
+    document.getElementById('ms_edu_c').innerHTML =
+      `<div class="formula">PV<sub>AB</sub> = PV<sub>A</sub> + PV<sub>B</sub> + Synergies = ${fmt(PVA,2)} + ${fmt(PVB,2)} + ${fmt(syn,2)} = ${fmt(PVAB,2)}</div>` +
+      `<div class="formula">P<sub>AB</sub> = PV<sub>AB</sub> / (shares<sub>A</sub> + N) = ${fmt(PVAB,2)} / (${fmt(sharesA*1000,0)}k + ${fmt(N*1000,0)}k) = $${fmt(PAB,2)}</div>` +
+      `<div class="formula">Actual costs = N &times; P<sub>AB</sub> &minus; PV<sub>B</sub> = ${fmt(N*1000,0)}k &times; $${fmt(PAB,2)} &minus; ${fmt(PVB,2)}M = ${fmt(cost,2)}M</div>` +
+      `<div class="formula">NPV<sub>A</sub> = Synergies &minus; Actual costs = ${fmt(syn,2)} &minus; ${fmt(cost,2)} = ${fmt(npv,2)}</div>` +
+      `<div class="step">Key difference from cash: P<sub>AB</sub> already reflects the synergies &rarr; actual share-payment cost is higher than it appears. ` +
+        `B shareholders own ${fmt(pctB,2)}% of the merged entity.</div>`;
+  }
+
+  document.getElementById('ms_interp').innerHTML = npv > 0
+    ? `<span class="ok">&#10003; VALUE-CREATING</span> &mdash; P<sub>AB</sub> = $${fmt(PAB,2)}/share. ` +
+      `Actual cost = ${fmt(cost,2)}M vs synergies ${fmt(syn,2)}M. B shareholders receive ${fmt(pctB,2)}% of merged entity.`
+    : `<span class="bad">&#10007; OVERPAID IN SHARES</span> &mdash; Actual cost (${fmt(cost,2)}M) > synergies (${fmt(syn,2)}M). ` +
+      `Consider reducing N (fewer shares offered) or re-estimating synergies.`;
+}
+
 // ─────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────
@@ -1156,6 +1672,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const rWa = document.getElementById('r_wa');
   rWa.addEventListener('input', () => { document.getElementById('r_wa_val').textContent = parseFloat(rWa.value).toFixed(0) + '%'; calcRisk(); });
   calcRisk();
+
+  // ── Derivatives & M&A ──
+  ['d_spot','d_K','d_St'].forEach(id => document.getElementById(id).addEventListener('input', calcForward));
+  const dRate = document.getElementById('d_rate');
+  dRate.addEventListener('input', () => { document.getElementById('d_rate_val').textContent = parseFloat(dRate.value).toFixed(1) + '%'; calcForward(); });
+  const dT = document.getElementById('d_T');
+  dT.addEventListener('input', () => { document.getElementById('d_T_val').textContent = parseFloat(dT.value).toFixed(1); calcForward(); });
+
+  ['o_S0','o_X','o_c','o_p'].forEach(id => document.getElementById(id).addEventListener('input', calcOptions));
+  const oRate = document.getElementById('o_rate');
+  oRate.addEventListener('input', () => { document.getElementById('o_rate_val').textContent = parseFloat(oRate.value).toFixed(1) + '%'; calcOptions(); });
+  const oT = document.getElementById('o_T');
+  oT.addEventListener('input', () => { document.getElementById('o_T_val').textContent = parseFloat(oT.value).toFixed(2); calcOptions(); });
+
+  ['ma_PVA','ma_PVB','ma_PVAB','ma_cash'].forEach(id => document.getElementById(id).addEventListener('input', calcMergerCash));
+  ['ms_PVA','ms_PVB','ms_syn','ms_sharesA','ms_N'].forEach(id => document.getElementById(id).addEventListener('input', calcMergerShares));
+
+  calcDerivTab();
 });
 </script>
 </body>
