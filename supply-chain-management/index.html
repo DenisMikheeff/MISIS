@@ -1,1 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ВкусВилл – Supply Chain Network</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #EFF5EE;
+            --surface:  rgba(239,245,238,0.93);
+            --border:   rgba(80,130,80,0.18);
+            --text:     #1C2E1C;
+            --text-mid: #4E7050;
+            --text-soft:#8EAA8E;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
 
+        body {
+            font-family:'Nunito',sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            height:100vh;
+            overflow:hidden;
+        }
+        body::after {
+            content:'';
+            position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:50;
+        }
+
+        /* ── Header ── */
+        header {
+            display:flex; align-items:center; gap:2rem;
+            padding:0 2.5rem; height:64px;
+            background:var(--surface);
+            backdrop-filter:blur(16px);
+            border-bottom:1px solid var(--border);
+            position:relative; z-index:10;
+        }
+        .brand {
+            font-family:'Cormorant Garamond',serif;
+            font-size:1.05rem; font-weight:600;
+            letter-spacing:0.06em; color:var(--text-mid);
+            white-space:nowrap; flex-shrink:0;
+            display:flex; align-items:center; gap:0.55rem;
+        }
+        .brand-dot {
+            width:9px; height:9px; border-radius:50%;
+            background:linear-gradient(135deg,#78C870,#3A9040);
+            flex-shrink:0;
+        }
+        .hdr-div { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+        .tabs { display:flex; gap:4px; }
+        .tab {
+            padding:7px 20px; border:none; border-radius:100px;
+            background:transparent;
+            font-family:'Nunito',sans-serif;
+            font-size:0.82rem; font-weight:600;
+            letter-spacing:0.025em; color:var(--text-mid); cursor:pointer;
+            transition:background .3s, color .3s;
+        }
+        .tab:hover { background:rgba(60,130,60,0.10); color:var(--text); }
+        .tab.active { background:var(--text); color:var(--bg); }
+        .course-title {
+            font-size:0.72rem; letter-spacing:0.06em;
+            color:var(--text-soft); white-space:nowrap;
+            overflow:hidden; text-overflow:ellipsis;
+            font-weight:400; margin-left:auto;
+        }
+
+        /* ── Canvas ── */
+        .canvas-wrap { width:100%; height:calc(100vh - 64px); position:relative; }
+        .tab-pane { display:none; position:absolute; inset:0; flex-direction:column; }
+        .tab-pane.active { display:flex; }
+
+        .map-svg-wrap { flex:1; min-height:0; position:relative; overflow:hidden; }
+        .map-svg-wrap svg { width:100%; height:100%; }
+
+        /* ── Info panel ── */
+        .dim-panel {
+            min-height:148px; height:auto; flex-shrink:0;
+            background:rgba(228,240,226,0.72);
+            border-top:1px solid var(--border);
+            display:flex; align-items:stretch;
+        }
+        .dim-section-title {
+            writing-mode:vertical-rl;
+            transform:rotate(180deg);
+            font-size:0.60rem; letter-spacing:0.13em; text-transform:uppercase;
+            color:var(--text-soft); padding:0 1.1rem;
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+            border-right:1px solid var(--border);
+        }
+        .dim-cards { display:flex; flex:1; flex-wrap:wrap; }
+        .dim-card {
+            flex:1; min-width:190px; display:flex; align-items:center; gap:13px;
+            padding:13px 1.4rem;
+            border-right:1px solid var(--border);
+        }
+        .dim-card:last-child { border-right:none; }
+        .dim-label {
+            font-family:'Cormorant Garamond',serif;
+            font-size:1.03rem; font-weight:600;
+            color:var(--text); margin-bottom:3px; letter-spacing:0.02em;
+        }
+        .dim-desc {
+            font-size:0.70rem; color:var(--text-mid);
+            line-height:1.55; font-weight:400;
+        }
+        .dim-formula {
+            font-family:'Cormorant Garamond',serif;
+            font-size:0.82rem; font-style:italic;
+            color:var(--text-mid); margin-top:4px;
+            letter-spacing:0.01em;
+        }
+        .tag-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+        .tag {
+            font-size:0.60rem; font-weight:600; letter-spacing:0.05em;
+            padding:2px 8px; border-radius:100px;
+            border:1px solid var(--border);
+            color:var(--text-mid); background:rgba(255,255,255,0.45);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="brand"><span class="brand-dot"></span>Supply Chain Maps</span>
+    <div class="hdr-div"></div>
+    <nav class="tabs">
+        <button class="tab active" onclick="switchTab('sc',this)">ВкусВилл Network</button>
+        <button class="tab"        onclick="switchTab('ca',this)">Competitive Advantage</button>
+    </nav>
+    <div class="hdr-div"></div>
+    <span class="course-title">NUST MISIS &nbsp;·&nbsp; Supply chain management, procurement and logistics in industry</span>
+</header>
+
+<div class="canvas-wrap">
+
+    <!-- SUPPLY CHAIN TAB -->
+    <div id="sc" class="tab-pane active">
+        <div class="map-svg-wrap"><svg id="scSvg"></svg></div>
+
+        <div class="dim-panel">
+            <div class="dim-section-title">SCM Concepts</div>
+            <div class="dim-cards">
+
+                <!-- Surplus formula -->
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <defs>
+                            <linearGradient id="gSurplus" x1="0" y1="1" x2="0" y2="0">
+                                <stop offset="0%" stop-color="#A8D8A0" stop-opacity="0.15"/>
+                                <stop offset="100%" stop-color="#A8D8A0" stop-opacity="0.70"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Customer Value bar -->
+                        <rect x="8"  y="10" width="32" height="38" rx="3" fill="url(#gSurplus)" stroke="#6AAE64" stroke-width="1.3"/>
+                        <text x="24" y="34" text-anchor="middle" fill="#3A7836" font-size="6.5" font-family="Nunito" font-weight="600">Customer</text>
+                        <text x="24" y="43" text-anchor="middle" fill="#3A7836" font-size="6.5" font-family="Nunito" font-weight="600">Value</text>
+                        <!-- minus -->
+                        <text x="47" y="32" text-anchor="middle" fill="#7AA878" font-size="14" font-family="Nunito">−</text>
+                        <!-- Cost bar -->
+                        <rect x="56" y="22" width="32" height="26" rx="3" fill="rgba(180,210,178,0.4)" stroke="#9AB896" stroke-width="1.3"/>
+                        <text x="72" y="37" text-anchor="middle" fill="#5A8858" font-size="6.5" font-family="Nunito" font-weight="600">SC Cost</text>
+                        <!-- surplus arrow -->
+                        <line x1="8" y1="8" x2="40" y2="8" stroke="#5AAA54" stroke-width="1.1" stroke-dasharray="2,1.5"/>
+                        <text x="24" y="6" text-anchor="middle" fill="#4A9448" font-size="6" font-family="Nunito" font-weight="600">surplus</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Chain Surplus</div>
+                        <div class="dim-desc">The objective of every supply chain<br>is to maximise total value generated.</div>
+                        <div class="dim-formula">Surplus = Value − SC Cost</div>
+                    </div>
+                </div>
+
+                <!-- Macro Processes -->
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <rect x="4"  y="14" width="26" height="30" rx="3" fill="rgba(168,200,168,0.5)"  stroke="#78A878" stroke-width="1.2"/>
+                        <rect x="35" y="14" width="26" height="30" rx="3" fill="rgba(148,188,208,0.5)"  stroke="#68A0BC" stroke-width="1.2"/>
+                        <rect x="66" y="14" width="26" height="30" rx="3" fill="rgba(218,188,148,0.5)"  stroke="#B89868" stroke-width="1.2"/>
+                        <text x="17" y="32" text-anchor="middle" fill="#2C6030" font-size="8"   font-family="Nunito" font-weight="600">SRM</text>
+                        <text x="48" y="32" text-anchor="middle" fill="#1A3E58" font-size="8"   font-family="Nunito" font-weight="600">ISCM</text>
+                        <text x="79" y="32" text-anchor="middle" fill="#483018" font-size="8"   font-family="Nunito" font-weight="600">CRM</text>
+                        <text x="17" y="40" text-anchor="middle" fill="#2C6030" font-size="5.8" font-family="Nunito">Supplier</text>
+                        <text x="48" y="40" text-anchor="middle" fill="#1A3E58" font-size="5.8" font-family="Nunito">Internal</text>
+                        <text x="79" y="40" text-anchor="middle" fill="#483018" font-size="5.8" font-family="Nunito">Customer</text>
+                        <line x1="4" y1="52" x2="92" y2="52" stroke="rgba(80,120,80,0.3)" stroke-width="1"/>
+                        <text x="48" y="57" text-anchor="middle" fill="#7AA878" font-size="6" font-family="Nunito" font-weight="600">← Supplier · Firm · Customer →</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Macro Processes</div>
+                        <div class="dim-desc">All SC activities within a firm<br>belong to SRM, ISCM, or CRM.<br>Integration is crucial for success.</div>
+                    </div>
+                </div>
+
+                <!-- Decision Phases -->
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <rect x="4"  y="38" width="88" height="12" rx="2" fill="rgba(168,200,168,0.45)" stroke="#78A878" stroke-width="1.1"/>
+                        <rect x="18" y="22" width="60" height="16" rx="2" fill="rgba(148,188,148,0.50)" stroke="#68A868" stroke-width="1.1"/>
+                        <rect x="32" y="8"  width="32" height="14" rx="2" fill="rgba(108,168,108,0.60)" stroke="#48A048" stroke-width="1.1"/>
+                        <text x="48" y="18"  text-anchor="middle" fill="#1A4020" font-size="6.5" font-family="Nunito" font-weight="600">Strategy</text>
+                        <text x="48" y="32"  text-anchor="middle" fill="#1E4820" font-size="6.5" font-family="Nunito" font-weight="600">Planning</text>
+                        <text x="48" y="47"  text-anchor="middle" fill="#264C22" font-size="6.5" font-family="Nunito" font-weight="600">Operation</text>
+                        <text x="8"  y="17"  fill="#90A890" font-size="5.5" font-family="Nunito">years</text>
+                        <text x="8"  y="31"  fill="#90A890" font-size="5.5" font-family="Nunito">qtr–yr</text>
+                        <text x="8"  y="47"  fill="#90A890" font-size="5.5" font-family="Nunito">daily</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Decision Phases</div>
+                        <div class="dim-desc">Design → Planning → Operation.<br>Each constrains the next and must<br>account for uncertainty over its horizon.</div>
+                    </div>
+                </div>
+
+                <!-- Push / Pull -->
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <!-- Push arrow -->
+                        <defs>
+                            <marker id="mArr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                                <path d="M0,0 L6,3 L0,6 Z" fill="#68A068"/>
+                            </marker>
+                        </defs>
+                        <rect x="4"  y="10" width="36" height="16" rx="3" fill="rgba(198,228,198,0.55)" stroke="#88B888" stroke-width="1.1"/>
+                        <rect x="56" y="10" width="36" height="16" rx="3" fill="rgba(148,198,228,0.55)" stroke="#78A8BC" stroke-width="1.1"/>
+                        <text x="22" y="21" text-anchor="middle" fill="#2C5C2C" font-size="7.5" font-family="Nunito" font-weight="600">PUSH</text>
+                        <text x="74" y="21" text-anchor="middle" fill="#1A3C50" font-size="7.5" font-family="Nunito" font-weight="600">PULL</text>
+                        <line x1="40" y1="18" x2="55" y2="18" stroke="#68A068" stroke-width="1.4" marker-end="url(#mArr)"/>
+                        <rect x="44" y="14" width="12" height="8" rx="1" fill="#EFF5EE" stroke="#A8C8A8" stroke-width="0.8"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#5A8858" font-size="5" font-family="Nunito" font-weight="600">P/P</text>
+                        <text x="22" y="36" text-anchor="middle" fill="#7A9878" font-size="6" font-family="Nunito">speculative</text>
+                        <text x="74" y="36" text-anchor="middle" fill="#5A8898" font-size="6" font-family="Nunito">reactive</text>
+                        <text x="48" y="52" text-anchor="middle" fill="#90A890" font-size="5.8" font-family="Nunito">push/pull boundary</text>
+                        <line x1="8" y1="46" x2="88" y2="46" stroke="rgba(80,140,80,0.22)" stroke-width="1"/>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Push / Pull</div>
+                        <div class="dim-desc">Push: forecast-driven (Procurement,<br>Manufacturing). Pull: order-driven<br>(ВкусВилл customer order cycle).</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPETITIVE ADVANTAGE TAB -->
+    <div id="ca" class="tab-pane">
+        <div class="map-svg-wrap"><svg id="caSvg"></svg></div>
+
+        <div class="dim-panel">
+            <div class="dim-section-title">Porter's View</div>
+            <div class="dim-cards">
+
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <rect x="6"  y="10" width="38" height="36" rx="4" fill="rgba(178,208,148,0.55)" stroke="#88B848" stroke-width="1.3"/>
+                        <rect x="52" y="10" width="38" height="36" rx="4" fill="rgba(238,218,148,0.55)" stroke="#C8A838" stroke-width="1.3"/>
+                        <text x="25" y="30" text-anchor="middle" fill="#2C4C10" font-size="8"   font-family="Nunito" font-weight="600">Cost</text>
+                        <text x="25" y="40" text-anchor="middle" fill="#2C4C10" font-size="6.5" font-family="Nunito">Advantage</text>
+                        <text x="71" y="27" text-anchor="middle" fill="#4A3808" font-size="7"   font-family="Nunito" font-weight="600">Differen-</text>
+                        <text x="71" y="36" text-anchor="middle" fill="#4A3808" font-size="7"   font-family="Nunito" font-weight="600">tiation</text>
+                        <text x="71" y="43" text-anchor="middle" fill="#4A3808" font-size="6.5" font-family="Nunito">Advantage</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Two Basic Types</div>
+                        <div class="dim-desc">According to M. Porter, every firm's<br>advantage is rooted in cost leadership<br>or meaningful differentiation.</div>
+                    </div>
+                </div>
+
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <circle cx="48" cy="29" r="22" fill="rgba(148,198,168,0.30)" stroke="#68A888" stroke-width="1.2"/>
+                        <text x="48" y="22" text-anchor="middle" fill="#1C4830" font-size="6.5" font-family="Nunito" font-weight="600">Efficiency</text>
+                        <text x="48" y="31" text-anchor="middle" fill="#1C4830" font-size="6.5" font-family="Nunito" font-weight="600">Quality</text>
+                        <text x="48" y="40" text-anchor="middle" fill="#1C4830" font-size="6.5" font-family="Nunito" font-weight="600">Innovation</text>
+                        <text x="48" y="5"  text-anchor="middle" fill="#8AAA98" font-size="5.8" font-family="Nunito">4 building blocks</text>
+                        <text x="48" y="54" text-anchor="middle" fill="#8AAA98" font-size="5.8" font-family="Nunito">Responsiveness</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Building Blocks</div>
+                        <div class="dim-desc">Efficiency, Quality, Innovation, and<br>Responsiveness to Customers are the<br>four pillars of competitive advantage.</div>
+                    </div>
+                </div>
+
+                <div class="dim-card">
+                    <svg width="96" height="58" viewBox="0 0 96 58" style="flex-shrink:0">
+                        <rect x="6"  y="8"  width="84" height="12" rx="2" fill="rgba(148,188,148,0.35)" stroke="#78A878" stroke-width="1"/>
+                        <rect x="6"  y="23" width="84" height="12" rx="2" fill="rgba(148,188,148,0.50)" stroke="#78A878" stroke-width="1"/>
+                        <rect x="6"  y="38" width="84" height="12" rx="2" fill="rgba(148,188,148,0.65)" stroke="#78A878" stroke-width="1"/>
+                        <text x="48" y="17" text-anchor="middle" fill="#3A6C3A" font-size="6.5" font-family="Nunito" font-weight="600">Valuable · Rare</text>
+                        <text x="48" y="32" text-anchor="middle" fill="#2A5C2A" font-size="6.5" font-family="Nunito" font-weight="600">Inimitable</text>
+                        <text x="48" y="47" text-anchor="middle" fill="#1A4C1A" font-size="6.5" font-family="Nunito" font-weight="600">Non-substitutable</text>
+                    </svg>
+                    <div>
+                        <div class="dim-label">Sustainable CA</div>
+                        <div class="dim-desc">A sustainable competitive advantage<br>must be Valuable, Rare, Inimitable,<br>and Non-substitutable (VRIN).</div>
+                    </div>
+                </div>
+
+                <div class="dim-card">
+                    <div>
+                        <div class="dim-label">ВкусВилл's Edge</div>
+                        <div class="dim-desc">Private-label quality control, farm<br>partnerships, and a loyal app-based<br>customer base create differentiation.</div>
+                        <div class="tag-row">
+                            <span class="tag">Innovation</span>
+                            <span class="tag">Customer Loyalty</span>
+                            <span class="tag">Brand Value</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ─── Palette ───────────────────────────────────────────────────────────────────
+const P = {
+    center:   { fill:'#C0DCB8', stroke:'#5EA054', text:'#1A3818' },
+    fern:     { fill:'#B4D4A8', stroke:'#6CA460', text:'#1A3414', cf:'#CAEAC0', cs:'#88BC80' },
+    sage:     { fill:'#C8E4BC', stroke:'#84B87A', text:'#1E3C1A', cf:'#DCEFD4', cs:'#A0CA94' },
+    slate:    { fill:'#B4C8D8', stroke:'#6A90A8', text:'#162838', cf:'#C8DCE8', cs:'#8AACC4' },
+    amber:    { fill:'#E4D0A0', stroke:'#C0A050', text:'#3A2C0C', cf:'#F0E0BC', cs:'#D0B46C' },
+    rose:     { fill:'#DCC4C4', stroke:'#B48888', text:'#341818', cf:'#ECD8D8', cs:'#C8A4A4' },
+    teal:     { fill:'#B0D4CC', stroke:'#5E9C94', text:'#143430', cf:'#C4E4DC', cs:'#80B8B0' },
+    indigo:   { fill:'#C0C8DC', stroke:'#6878A8', text:'#182038', cf:'#D4DCEC', cs:'#8898C4' },
+    // competitive advantage tab
+    caCenter: { fill:'#D4C8A8', stroke:'#A89860', text:'#302010' },
+    gold:     { fill:'#E4D4A0', stroke:'#C0A844', text:'#3A2C08', cf:'#F0E0BC', cs:'#D0B864' },
+    green2:   { fill:'#BCDCB0', stroke:'#6CAC5C', text:'#1C3C14', cf:'#D0ECCA', cs:'#8CC880' },
+    dustRose: { fill:'#DCCCC4', stroke:'#B09080', text:'#3A2820', cf:'#ECD8D0', cs:'#C4A898' },
+    sky:      { fill:'#B8D0DC', stroke:'#6890A8', text:'#182C3A', cf:'#CCE4EE', cs:'#8AACC4' },
+    lime:     { fill:'#C8DCA8', stroke:'#88B860', text:'#243414', cf:'#DCECC4', cs:'#AACE80' },
+};
+
+// ─── ВкусВилл Supply Chain Data ────────────────────────────────────────────────
+const scData = {
+    center: { label:'ВкусВилл\nSupply Chain', x:0, y:0 },
+    nodes: [
+        // Raw materials – farm level
+        { label:'Raw Material\nSuppliers', x:-262, y:-195, color:'fern', children:[
+            { label:'Dairy\nFarms',              x:-395, y:-310 },
+            { label:'Fruit & Veg\nGrowers',      x:-455, y:-198 },
+            { label:'Meat &\nPoultry',           x:-440, y:-88  },
+            { label:'Bakery\nIngredients',       x:-372, y:10   },
+        ]},
+        // Private-label manufacturing
+        { label:'Private Label\nManufacturing', x:0, y:-268, color:'sage', children:[
+            { label:'Own\nProduction Sites',    x:-120, y:-385 },
+            { label:'Contract\nManufacturers',  x:-42,  y:-415 },
+            { label:'Quality\nControl Labs',    x:42,   y:-415 },
+            { label:'R&D &\nRecipe Dev.',        x:122,  y:-382 },
+        ]},
+        // Inbound logistics / procurement
+        { label:'Procurement\n& Inbound Log.', x:262, y:-195, color:'slate', children:[
+            { label:'Supplier\nContracts',       x:388,  y:-315 },
+            { label:'SRM\nPlatform',             x:448,  y:-208 },
+            { label:'Incoming\nQA Checks',       x:462,  y:-98  },
+            { label:'Cold-Chain\nInbound',       x:420,  y:12   },
+        ]},
+        // Warehousing & distribution
+        { label:'Warehousing &\nDistribution', x:320, y:68, color:'teal', children:[
+            { label:'Regional\nDist. Centres',   x:462,  y:-28  },
+            { label:'Cold Storage\nFacilities',  x:478,  y:88   },
+            { label:'Cross-\nDocking',           x:438,  y:195  },
+        ]},
+        // Retail – physical
+        { label:'Retail\nNetwork', x:262, y:228, color:'amber', children:[
+            { label:'Urban\nConvenience',        x:390,  y:308  },
+            { label:'Suburban\nStores',          x:342,  y:385  },
+            { label:'Flagship\nFormat',          x:228,  y:415  },
+        ]},
+        // Digital & delivery
+        { label:'Digital &\nDelivery', x:0, y:315, color:'indigo', children:[
+            { label:'ВкусВилл\nApp',             x:-96,  y:428  },
+            { label:'Dark Stores\n(e-fulfil.)',  x:0,    y:455  },
+            { label:'Last-Mile\nCouriers',       x:96,   y:428  },
+        ]},
+        // Customers
+        { label:'Customers', x:-262, y:228, color:'rose', children:[
+            { label:'Health-\nConscious Buyers', x:-388, y:308  },
+            { label:'Loyalty\nApp Users',        x:-340, y:385  },
+            { label:'Subscription\nCustomers',   x:-228, y:415  },
+            { label:'B2B /\nCorporate',          x:-120, y:390  },
+        ]},
+        // After-sale / returns
+        { label:'Returns &\nFeedback Loop', x:-320, y:68, color:'lime', children:[
+            { label:'Product\nReturns',          x:-452, y:-18  },
+            { label:'Customer\nFeedback',        x:-472, y:92   },
+            { label:'Supplier\nScorecard',       x:-435, y:200  },
+        ]},
+    ]
+};
+
+// ─── Competitive Advantage Data (Theme 1, §1.7) ────────────────────────────────
+const caData = {
+    center: { label:'Competitive\nAdvantage', x:0, y:0, colorKey:'caCenter' },
+    nodes: [
+        { label:"Porter's\nTwo Types", x:-255, y:-190, color:'gold', children:[
+            { label:'Cost\nLeadership',       x:-378, y:-310 },
+            { label:'Differentiation',        x:-440, y:-205 },
+            { label:'Focus\nStrategy',        x:-430, y:-98  },
+        ]},
+        { label:'Four\nBuilding Blocks', x:0, y:-268, color:'green2', children:[
+            { label:'Efficiency',             x:-115, y:-380 },
+            { label:'Quality',                x:-40,  y:-412 },
+            { label:'Innovation',             x:40,   y:-412 },
+            { label:'Customer\nResponsiveness',x:118,  y:-378 },
+        ]},
+        { label:'Durability\nFactors', x:255, y:-190, color:'sky', children:[
+            { label:'Barriers to\nImitation', x:378,  y:-308 },
+            { label:'Competitor\nCapability', x:442,  y:-200 },
+            { label:'Industry\nDynamism',     x:435,  y:-90  },
+        ]},
+        { label:'Sustainable CA\n(VRIN)', x:320, y:65, color:'lime', children:[
+            { label:'Valuable',               x:452,  y:-25  },
+            { label:'Rare',                   x:472,  y:85   },
+            { label:'Inimitable',             x:440,  y:192  },
+            { label:'Non-\nsubstitutable',    x:378,  y:278  },
+        ]},
+        { label:'Sources of\nAdvantage', x:255, y:225, color:'gold', children:[
+            { label:'Innovations',            x:382,  y:308  },
+            { label:'Customer\nLoyalty',      x:335,  y:382  },
+            { label:'Brand\nValue',           x:220,  y:412  },
+            { label:'Sustainable\nPartnerships',x:118, y:388  },
+        ]},
+        { label:'Causes of\nChange', x:0, y:312, color:'dustRose', children:[
+            { label:'New\nTechnologies',      x:-95,  y:420  },
+            { label:'Shifting\nBuyer Needs',  x:0,    y:452  },
+            { label:'Regulatory\nChanges',    x:95,   y:420  },
+        ]},
+        { label:'Types of CA', x:-255, y:225, color:'sky', children:[
+            { label:'Short-term\nvs Long-term', x:-378, y:308  },
+            { label:'Imitated\nvs Unique',      x:-330, y:382  },
+            { label:'Internal\nvs External',    x:-218, y:412  },
+        ]},
+        { label:'Conditions\nfor CA', x:-320, y:65, color:'green2', children:[
+            { label:'Heterogeneity\nof Resources', x:-452, y:-15  },
+            { label:'Ex-post\nLimits',             x:-472, y:90   },
+            { label:'Imperfect\nMobility',         x:-440, y:196  },
+            { label:'Ex-ante\nLimits',             x:-378, y:278  },
+        ]},
+    ]
+};
+
+// ─── MindMap engine ────────────────────────────────────────────────────────────
+class MindMap {
+    constructor(svgId, data, centerPal) {
+        this.svg      = document.getElementById(svgId);
+        this.data     = data;
+        this.centerPal = centerPal || 'center';
+        this.nodes    = [];
+        this.drag     = null;
+        this._last    = null;
+        this._raf     = null;
+        this._resize();
+        this._build();
+        this._defs();
+        this._listen();
+        this._tick();
+    }
+
+    _resize() {
+        const wrap = document.querySelector('.canvas-wrap');
+        this.W  = wrap.clientWidth;
+        this.H  = wrap.clientHeight;
+        this.cx = this.W / 2;
+        this.cy = this.H / 2;
+        this.svg.setAttribute('viewBox', `0 0 ${this.W} ${this.H}`);
+    }
+
+    _build() {
+        this.nodes = [];
+        const { cx, cy } = this;
+        const cPalKey = this.data.center.colorKey || this.centerPal;
+        const cPal    = P[cPalKey] || P.center;
+
+        const center = {
+            x:cx, y:cy, vx:0, vy:0,
+            label: this.data.center.label,
+            isCenter:true,
+            pal:{ fill:cPal.fill, stroke:cPal.stroke, text:cPal.text },
+            r:62, level:0, restDist:0, parent:null
+        };
+        this.nodes.push(center);
+
+        this.data.nodes.forEach(nd => {
+            const pal = P[nd.color] || P.fern;
+            const main = {
+                x: cx + nd.x, y: cy + nd.y,
+                vx:(Math.random()-.5)*0.06, vy:(Math.random()-.5)*0.06,
+                label:nd.label, parent:center,
+                pal:{ fill:pal.fill, stroke:pal.stroke, text:pal.text },
+                r:48, level:1, restDist:225
+            };
+            this.nodes.push(main);
+
+            (nd.children||[]).forEach(cd => {
+                this.nodes.push({
+                    x: cx + cd.x, y: cy + cd.y,
+                    vx:(Math.random()-.5)*0.05, vy:(Math.random()-.5)*0.05,
+                    label:cd.label, parent:main,
+                    pal:{ fill:pal.cf||pal.fill, stroke:pal.cs||pal.stroke, text:pal.text },
+                    r:36, level:2, restDist:152
+                });
+            });
+        });
+    }
+
+    _defs() {
+        this.svg.innerHTML = `<defs>
+          <filter id="sh0" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="5" stdDeviation="14" flood-color="rgba(30,80,30,0.15)"/>
+          </filter>
+          <filter id="sh1" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="3" stdDeviation="8"  flood-color="rgba(40,90,40,0.11)"/>
+          </filter>
+          <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4"  flood-color="rgba(50,100,50,0.09)"/>
+          </filter>
+        </defs>`;
+    }
+
+    _render() {
+        [...this.svg.children].forEach(c => { if (c.tagName !== 'defs') c.remove(); });
+        const NS = 'http://www.w3.org/2000/svg';
+        const lg = document.createElementNS(NS,'g');
+        const ng = document.createElementNS(NS,'g');
+        this.svg.append(lg, ng);
+
+        this.nodes.forEach(n => {
+            if (!n.parent) return;
+            const x1=n.parent.x, y1=n.parent.y, x2=n.x, y2=n.y;
+            const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy)||1;
+            const off = len * 0.1;
+            const cpx = (x1+x2)/2 - (dy/len)*off;
+            const cpy = (y1+y2)/2 + (dx/len)*off;
+            const path = document.createElementNS(NS,'path');
+            path.setAttribute('d', `M${x1} ${y1} Q${cpx} ${cpy} ${x2} ${y2}`);
+            path.setAttribute('fill','none');
+            path.setAttribute('stroke-linecap','round');
+            path.setAttribute('stroke', n.level===1 ? 'rgba(70,140,70,0.28)' : 'rgba(100,160,100,0.20)');
+            path.setAttribute('stroke-width', n.level===1 ? '2' : '1.4');
+            lg.appendChild(path);
+        });
+
+        this.nodes.forEach((n, i) => {
+            const g = document.createElementNS(NS,'g');
+            g.setAttribute('data-i', i);
+            g.style.cursor = 'grab';
+
+            const c = document.createElementNS(NS,'circle');
+            c.setAttribute('cx', n.x); c.setAttribute('cy', n.y); c.setAttribute('r', n.r);
+            c.setAttribute('fill',   n.pal.fill);
+            c.setAttribute('stroke', n.pal.stroke);
+            c.setAttribute('stroke-width', n.isCenter ? '2.5' : '1.5');
+            c.setAttribute('filter', n.isCenter ? 'url(#sh0)' : n.level===1 ? 'url(#sh1)' : 'url(#sh2)');
+            g.appendChild(c);
+
+            const lines = n.label.split('\n');
+            const totalH = (lines.length - 1) * 14;
+            lines.forEach((txt, li) => {
+                const t = document.createElementNS(NS,'text');
+                t.setAttribute('x', n.x);
+                t.setAttribute('y', n.y - totalH/2 + li*14 + 5);
+                t.setAttribute('text-anchor','middle');
+                t.setAttribute('fill', n.pal.text);
+                t.setAttribute('font-family', n.isCenter ? "'Cormorant Garamond',serif" : "'Nunito',sans-serif");
+                t.setAttribute('font-size',   n.isCenter ? '14' : n.level===1 ? '11' : '10');
+                t.setAttribute('font-weight', n.isCenter ? '600' : n.level===1 ? '600' : '400');
+                t.style.pointerEvents = 'none';
+                t.style.userSelect    = 'none';
+                t.textContent = txt;
+                g.appendChild(t);
+            });
+            ng.appendChild(g);
+        });
+    }
+
+    _tick() {
+        const now = performance.now();
+        const dt  = Math.min(((now - (this._last||now)) / 16.667), 2.5);
+        this._last = now;
+
+        this.nodes.forEach((n, i) => {
+            if (this.drag === i || !n.parent) return;
+            const dx = n.parent.x - n.x;
+            const dy = n.parent.y - n.y;
+            const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+            const force = (dist - n.restDist) * 0.005 * dt;
+            n.vx += (dx/dist) * force;
+            n.vy += (dy/dist) * force;
+            n.vx += (Math.random()-.5) * 0.009 * dt;
+            n.vy += (Math.random()-.5) * 0.009 * dt;
+            n.vx *= Math.pow(0.968, dt);
+            n.vy *= Math.pow(0.968, dt);
+            const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+            if (spd > 1.0) { n.vx = n.vx/spd; n.vy = n.vy/spd; }
+            n.x += n.vx * dt;
+            n.y += n.vy * dt;
+            const m = n.r + 14;
+            if (n.x < m)        n.vx += (m - n.x) * 0.07;
+            if (n.x > this.W-m) n.vx -= (n.x - (this.W-m)) * 0.07;
+            if (n.y < m)        n.vy += (m - n.y) * 0.07;
+            if (n.y > this.H-m) n.vy -= (n.y - (this.H-m)) * 0.07;
+        });
+
+        this._render();
+        this._raf = requestAnimationFrame(() => this._tick());
+    }
+
+    _listen() {
+        const svg = this.svg;
+        svg.addEventListener('mousedown', e => {
+            const g = e.target.closest('g[data-i]');
+            if (g) this.drag = +g.getAttribute('data-i');
+        });
+        svg.addEventListener('mousemove', e => {
+            if (this.drag === null) return;
+            const r = svg.getBoundingClientRect();
+            const n = this.nodes[this.drag];
+            n.x = (e.clientX - r.left) * (this.W / r.width);
+            n.y = (e.clientY - r.top)  * (this.H / r.height);
+            n.vx = n.vy = 0;
+        });
+        const end = () => { this.drag = null; };
+        svg.addEventListener('mouseup',    end);
+        svg.addEventListener('mouseleave', end);
+        svg.addEventListener('touchstart', e => {
+            const g = e.target.closest('g[data-i]');
+            if (g) { e.preventDefault(); this.drag = +g.getAttribute('data-i'); }
+        }, {passive:false});
+        svg.addEventListener('touchmove', e => {
+            if (this.drag === null) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            const r = svg.getBoundingClientRect();
+            const n = this.nodes[this.drag];
+            n.x = (t.clientX - r.left) * (this.W / r.width);
+            n.y = (t.clientY - r.top)  * (this.H / r.height);
+            n.vx = n.vy = 0;
+        }, {passive:false});
+        svg.addEventListener('touchend', end);
+    }
+
+    stop() { if (this._raf) cancelAnimationFrame(this._raf); }
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+let maps = {};
+
+function init() {
+    Object.values(maps).forEach(m => m.stop());
+    maps = {};
+    maps.sc = new MindMap('scSvg', scData, 'center');
+    maps.ca = new MindMap('caSvg', caData, 'caCenter');
+}
+
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab')     .forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(name).classList.add('active');
+}
+
+window.addEventListener('load',   init);
+window.addEventListener('resize', init);
+</script>
+</body>
+</html>
