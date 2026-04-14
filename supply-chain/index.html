@@ -1,609 +1,843 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ВкусВилл – Supply Chain Network</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg:       #F0F4F0;
-            --hdr:      #172219;
-            --panel:    #FFFFFF;
-            --border:   rgba(50,110,55,0.13);
-            --text:     #192A1A;
-            --text-mid: #446648;
-            --text-soft:#8EAA8E;
-            --accent:   #296030;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВкусВилл — Supply Chain Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hdr-h:62px;
+  --bg:#F5F4F0;
+  --white:#FFFFFF;
+  --text:#111827;
+  --text-mid:#4B5563;
+  --text-soft:#9CA3AF;
+  --border:rgba(0,0,0,0.07);
+  --g1:#16A34A; /* primary green */
+  --g2:#4ADE80; /* light green  */
+  --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
 
-        body {
-            font-family:'Nunito',sans-serif;
-            background:var(--bg);
-            color:var(--text);
-            height:100vh;
-            overflow:hidden;
-        }
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  overflow:hidden;
+}
 
-        .dot-grid {
-            position:fixed; inset:0;
-            background-image:radial-gradient(circle, rgba(50,120,55,0.13) 1.2px, transparent 1.2px);
-            background-size:30px 30px;
-            pointer-events:none; z-index:0;
-        }
+/* ━━━ HEADER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+header{
+  height:var(--hdr-h);
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:stretch;
+  position:relative; z-index:100;
+}
+/* Thick left rule */
+.hdr-rule{
+  width:5px; flex-shrink:0;
+  background:linear-gradient(to bottom,var(--g2),var(--g1));
+}
+.hdr-body{
+  flex:1;
+  display:flex; align-items:center;
+  padding:0 1.6rem; gap:1.4rem;
+}
+/* Wordmark block */
+.wm{
+  display:flex; align-items:baseline; gap:6px;
+  flex-shrink:0;
+}
+.wm-main{
+  font-size:1.08rem; font-weight:700; letter-spacing:-0.02em;
+  color:var(--text);
+}
+.wm-sep{
+  width:1px; height:16px; background:var(--border);
+  align-self:center; flex-shrink:0;
+}
+.wm-sub{
+  font-size:0.65rem; font-weight:500; letter-spacing:0.10em;
+  text-transform:uppercase; color:var(--text-soft);
+  align-self:center;
+}
+/* Segmented nav */
+.seg{
+  display:flex; background:#F3F4F6;
+  border:1px solid var(--border);
+  border-radius:8px; padding:3px;
+  gap:2px;
+}
+.seg-btn{
+  border:none; background:transparent; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.72rem; font-weight:600;
+  color:#6B7280;
+  padding:5px 13px; border-radius:6px;
+  display:flex; align-items:center; gap:5px;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.seg-btn:hover{color:var(--text);}
+.seg-btn.active{
+  background:var(--white); color:var(--text);
+  box-shadow:0 1px 3px rgba(0,0,0,0.09),0 0 0 1px rgba(0,0,0,0.04);
+}
+.seg-idx{
+  font-size:0.56rem; font-weight:700; letter-spacing:0.06em;
+  color:var(--text-soft);
+}
+.seg-btn.active .seg-idx{color:var(--g1);}
+/* MISIS badge */
+.misis{
+  margin-left:auto;
+  font-size:0.60rem; font-weight:600;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--text-soft);
+  border:1px solid var(--border);
+  padding:4px 10px; border-radius:5px;
+  white-space:nowrap;
+}
 
-        /* ── Header ── */
-        header {
-            display:flex; align-items:center; gap:1.6rem;
-            padding:0 2.2rem; height:56px;
-            background:var(--hdr);
-            position:relative; z-index:20;
-            border-bottom:1px solid rgba(255,255,255,0.05);
-        }
-        .brand {
-            display:flex; align-items:center; gap:9px;
-            font-family:'Nunito',sans-serif;
-            font-size:0.70rem; font-weight:700;
-            letter-spacing:0.16em; text-transform:uppercase;
-            color:#72C478; white-space:nowrap; flex-shrink:0;
-        }
-        .brand-hex {
-            width:22px; height:22px; flex-shrink:0;
-            background:linear-gradient(135deg,#4CAF50,#1B5E20);
-            clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
-        }
-        .hdr-sep { width:1px; height:22px; background:rgba(255,255,255,0.09); flex-shrink:0; }
-        .tabs { display:flex; gap:3px; }
-        .tab {
-            padding:5px 16px; border:1px solid transparent;
-            border-radius:5px; background:transparent;
-            font-family:'Nunito',sans-serif;
-            font-size:0.76rem; font-weight:600;
-            color:rgba(210,230,210,0.50); cursor:pointer;
-            transition:background .2s, color .2s, border-color .2s;
-        }
-        .tab:hover { background:rgba(255,255,255,0.07); color:rgba(210,230,210,0.85); }
-        .tab.active {
-            background:rgba(76,175,80,0.18);
-            border-color:rgba(76,175,80,0.30);
-            color:#A8DCA8;
-        }
-        .course-title {
-            margin-left:auto;
-            font-size:0.66rem; letter-spacing:0.05em;
-            color:rgba(210,230,210,0.28); font-weight:400;
-            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-        }
+/* ━━━ MAIN SCROLL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.scroll{
+  height:calc(100vh - var(--hdr-h));
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
 
-        /* ── Canvas ── */
-        .canvas-wrap { width:100%; height:calc(100vh - 56px); position:relative; z-index:1; }
-        .tab-pane { display:none; position:absolute; inset:0; flex-direction:column; }
-        .tab-pane.active { display:flex; }
-        .map-svg-wrap { flex:1; min-height:0; position:relative; overflow:hidden; }
-        .map-svg-wrap svg { width:100%; height:100%; }
+/* ━━━ SC MAP SECTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.map-wrap{
+  height:57vh; min-height:380px;
+  position:relative;
+  background:#EBF3EC;
+}
+/* Engineering-paper grid */
+.map-wrap::before{
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,0,0,0.035) 1px,transparent 1px);
+  background-size:36px 36px;
+  pointer-events:none;
+}
+.map-wrap svg{width:100%;height:100%;}
 
-        /* ── Info panel ── */
-        .info-panel {
-            flex-shrink:0; min-height:178px;
-            background:var(--panel);
-            border-top:2px solid rgba(41,96,48,0.10);
-            display:flex;
-        }
-        .panel-side {
-            writing-mode:vertical-rl;
-            transform:rotate(180deg);
-            font-size:0.55rem; letter-spacing:0.22em; text-transform:uppercase;
-            color:var(--text-soft); padding:0 1rem;
-            display:flex; align-items:center; justify-content:center;
-            flex-shrink:0; border-right:1px solid var(--border);
-            background:#FAFBFA;
-        }
-        .panel-cards { display:flex; flex:1; overflow-x:auto; }
-        .p-card {
-            flex:1; min-width:220px;
-            display:flex; flex-direction:column; justify-content:center;
-            padding:20px 24px 18px;
-            border-right:1px solid var(--border);
-        }
-        .p-card:last-child { border-right:none; }
-        .p-head {
-            display:flex; align-items:center; gap:10px;
-            margin-bottom:11px;
-        }
-        .p-num {
-            flex-shrink:0;
-            width:24px; height:24px; border-radius:5px;
-            background:var(--accent); color:#fff;
-            font-size:0.72rem; font-weight:700;
-            display:flex; align-items:center; justify-content:center;
-        }
-        .p-title {
-            font-size:0.93rem; font-weight:700;
-            color:var(--text); letter-spacing:0.005em;
-        }
-        .p-body {
-            font-size:0.76rem; color:var(--text-mid);
-            line-height:1.65; font-weight:400;
-        }
-        .p-formula {
-            display:inline-block; margin-top:9px;
-            font-family:'Cormorant Garamond',serif;
-            font-size:1.0rem; font-style:italic;
-            color:var(--accent);
-        }
-        .p-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
-        .p-chip {
-            font-size:0.62rem; font-weight:700; letter-spacing:0.06em;
-            padding:3px 9px; border-radius:4px;
-            background:rgba(41,96,48,0.07);
-            color:var(--accent);
-            border:1px solid rgba(41,96,48,0.16);
-            white-space:nowrap;
-        }
-    </style>
+/* ━━━ CONCEPTS STRIP ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.strip{
+  background:var(--white);
+  border-top:2px solid var(--border);
+  display:flex; min-height:155px;
+}
+.strip-label{
+  writing-mode:vertical-rl; transform:rotate(180deg);
+  font-size:0.52rem; font-weight:600; letter-spacing:0.20em;
+  text-transform:uppercase; color:var(--text-soft);
+  padding:0 0.95rem; flex-shrink:0;
+  border-right:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  background:#FAFAF9;
+}
+.strip-cards{display:flex;flex:1;}
+.sc{
+  flex:1; min-width:190px;
+  padding:16px 20px 14px;
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; gap:5px;
+}
+.sc:last-child{border-right:none;}
+.sc-hd{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+.sc-badge{
+  width:20px;height:20px;border-radius:4px;
+  background:var(--g1);color:#fff;
+  font-size:0.62rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.sc-title{font-size:0.80rem;font-weight:700;color:var(--text);}
+.sc-body{font-size:0.69rem;color:var(--text-mid);line-height:1.60;}
+.sc-formula{
+  font-family:'DM Serif Display',serif;
+  font-style:italic;font-size:0.85rem;
+  color:var(--g1);margin-top:2px;
+}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.chip{
+  font-size:0.57rem;font-weight:600;padding:2px 6px;
+  border-radius:3px;border:1px solid rgba(22,163,74,.18);
+  color:var(--g1);background:rgba(22,163,74,.06);white-space:nowrap;
+}
+
+/* ━━━ SECTION BRIDGE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.bridge{
+  background:var(--bg);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:22px 2rem;
+  display:flex; align-items:center; gap:14px;
+}
+.br-label{
+  font-size:0.57rem;font-weight:600;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--text-soft);
+  flex-shrink:0;
+}
+.br-title{
+  font-family:'DM Serif Display',serif;
+  font-size:1.35rem;color:var(--text);
+}
+.br-rule{flex:1;height:1px;background:var(--border);}
+.br-num{
+  font-size:0.57rem;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--text-soft);
+  border:1px solid var(--border);
+  padding:3px 9px;border-radius:4px;flex-shrink:0;
+}
+
+/* ━━━ CA INFOGRAPHIC ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ca{padding:1.8rem 2rem 3rem;display:flex;flex-direction:column;gap:1.8rem;}
+
+/* section heading */
+.ca-hd{margin-bottom:.85rem;}
+.ca-kicker{
+  font-size:0.56rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-soft);
+  margin-bottom:4px;
+}
+.ca-title{
+  font-family:'DM Serif Display',serif;
+  font-size:1.15rem;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+.ca-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── Porter ── */
+.porter{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.pc{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.4rem;
+  position:relative;overflow:hidden;
+}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.pc.cost::before{background:linear-gradient(90deg,#4ADE80,#16A34A);}
+.pc.diff::before{background:linear-gradient(90deg,#60A5FA,#2563EB);}
+.pc-type{
+  font-size:0.57rem;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;margin-bottom:5px;
+}
+.cost .pc-type{color:#16A34A;}.diff .pc-type{color:#2563EB;}
+.pc-name{
+  font-family:'DM Serif Display',serif;
+  font-size:1.30rem;color:var(--text);margin-bottom:9px;
+}
+.pc-desc{font-size:0.71rem;color:var(--text-mid);line-height:1.65;margin-bottom:10px;}
+.pc-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.pc-tag{
+  font-size:0.60rem;font-weight:600;padding:3px 8px;border-radius:4px;
+}
+.cost .pc-tag{background:#DCFCE7;color:#14532D;}
+.diff .pc-tag{background:#DBEAFE;color:#1E40AF;}
+.vv-note{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#F0FDF4;border:1px solid #BBF7D0;
+  border-radius:5px;padding:4px 9px;
+  font-size:0.62rem;font-weight:600;color:#166534;
+  margin-top:10px;
+}
+.vv-dot{width:6px;height:6px;border-radius:50%;background:#22C55E;flex-shrink:0;}
+
+/* ── Building Blocks ── */
+.blocks{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.blk{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.1rem 1rem 1rem;
+}
+.blk-icon{
+  width:34px;height:34px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;margin-bottom:8px;
+}
+.blk-name{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.blk-desc{font-size:0.68rem;color:var(--text-mid);line-height:1.58;margin-bottom:8px;}
+.blk-vv{
+  font-size:0.63rem;font-weight:600;color:var(--g1);
+  border-top:1px solid var(--border);padding-top:7px;
+}
+
+/* ── VRIN ── */
+.vrin-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.4rem 1.5rem;
+}
+.vrin-meta{font-size:0.67rem;color:var(--text-soft);margin-bottom:1.2rem;}
+.vrin-rows{display:flex;flex-direction:column;gap:13px;}
+.vrin-row{
+  display:grid;
+  grid-template-columns:26px 1fr 2fr 36px;
+  align-items:center;gap:11px;
+}
+.vl{
+  width:26px;height:26px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.80rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+.vlabel{font-size:0.73rem;font-weight:600;color:var(--text);}
+.vsub{font-size:0.60rem;color:var(--text-soft);margin-top:1px;line-height:1.4;}
+.vbar-bg{height:9px;background:#F3F4F6;border-radius:5px;overflow:hidden;}
+.vbar{height:100%;width:0;border-radius:5px;transition:width 1.1s cubic-bezier(.4,0,.2,1);}
+.vpct{font-size:0.72rem;font-weight:700;color:var(--text);text-align:right;}
+
+/* ── Sources ── */
+.sources{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;}
+.src{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:.95rem;
+}
+.src.hi{background:#F0FDF4;border-color:#BBF7D0;}
+.src-icon{font-size:1.15rem;margin-bottom:5px;}
+.src-name{font-size:0.76rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.src-note{font-size:0.63rem;color:var(--text-soft);line-height:1.5;}
+.src-vv{
+  font-size:0.56rem;font-weight:700;color:#166534;
+  background:#DCFCE7;padding:2px 6px;border-radius:3px;
+  display:inline-block;margin-top:5px;
+}
+
+/* ── Durability ── */
+.dur{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.dc{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.2rem;
+}
+.dc-n{
+  font-family:'DM Serif Display',serif;
+  font-size:2.2rem;color:#F0F0EE;line-height:1;margin-bottom:6px;
+}
+.dc-title{font-size:0.80rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.dc-desc{font-size:0.68rem;color:var(--text-mid);line-height:1.58;}
+
+/* ── Responsive ── */
+@media(max-width:940px){
+  .blocks{grid-template-columns:repeat(2,1fr);}
+  .sources{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:700px){
+  .porter{grid-template-columns:1fr;}
+  .dur{grid-template-columns:1fr;}
+  .vrin-row{grid-template-columns:26px 1fr 2fr 32px;}
+}
+</style>
 </head>
 <body>
-<div class="dot-grid"></div>
 
+<!-- ━━━ HEADER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
 <header>
-    <span class="brand"><span class="brand-hex"></span>Supply Chain Maps</span>
-    <div class="hdr-sep"></div>
-    <nav class="tabs">
-        <button class="tab active" onclick="switchTab('sc',this)">ВкусВилл Network</button>
-        <button class="tab"        onclick="switchTab('ca',this)">Competitive Advantage</button>
+  <div class="hdr-rule"></div>
+  <div class="hdr-body">
+
+    <div class="wm">
+      <span class="wm-main">ВкусВилл</span>
+      <div class="wm-sep"></div>
+      <span class="wm-sub">Supply Chain Intelligence</span>
+    </div>
+
+    <nav class="seg">
+      <button class="seg-btn active" onclick="navTo('network',this)">
+        <span class="seg-idx">01</span> Network Map
+      </button>
+      <button class="seg-btn" onclick="navTo('analysis',this)">
+        <span class="seg-idx">02</span> Strategic Analysis
+      </button>
     </nav>
-    <div class="hdr-sep"></div>
-    <span class="course-title">NUST MISIS &nbsp;·&nbsp; Supply chain management, procurement and logistics in industry</span>
+
+    <span class="misis">NUST MISIS · SCM &amp; Logistics</span>
+
+  </div>
 </header>
 
-<div class="canvas-wrap">
+<!-- ━━━ SCROLL CONTAINER ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="scroll" id="mainScroll">
 
-    <!-- ── SC NETWORK ── -->
-    <div id="sc" class="tab-pane active">
-        <div class="map-svg-wrap"><svg id="scSvg"></svg></div>
-        <div class="info-panel">
-            <div class="panel-side">SCM Key Concepts</div>
-            <div class="panel-cards">
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">1</span><span class="p-title">Chain Surplus</span></div>
-                    <div class="p-body">The objective of every supply chain is to maximise total value generated — the gap between what customers value the product at and what it costs the whole chain to deliver.</div>
-                    <span class="p-formula">Surplus = Customer Value − SC Cost</span>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">2</span><span class="p-title">Macro Processes</span></div>
-                    <div class="p-body">All SC activities within a firm belong to one of three macro processes. Integration across all three is crucial — ВкусВилл's edge comes from tight SRM–ISCM–CRM alignment.</div>
-                    <div class="p-chips">
-                        <span class="p-chip">SRM — Supplier</span>
-                        <span class="p-chip">ISCM — Internal</span>
-                        <span class="p-chip">CRM — Customer</span>
-                    </div>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">3</span><span class="p-title">Decision Phases</span></div>
-                    <div class="p-body">Design constrains planning, which constrains daily operation. Each phase must account for uncertainty over its time horizon — from multi-year network design to same-day fulfilment.</div>
-                    <div class="p-chips">
-                        <span class="p-chip">Strategy · years</span>
-                        <span class="p-chip">Planning · quarters</span>
-                        <span class="p-chip">Operation · daily</span>
-                    </div>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">4</span><span class="p-title">Push / Pull</span></div>
-                    <div class="p-body">Procurement and manufacturing run on forecasts (push). ВкусВилл's app ordering, dark-store picking, and last-mile delivery are all demand-driven (pull) — initiated by the customer order.</div>
-                    <div class="p-chips">
-                        <span class="p-chip">Push · speculative</span>
-                        <span class="p-chip">Pull · reactive</span>
-                    </div>
-                </div>
-            </div>
+  <!-- ── Section 01: Network map ─────────────────── -->
+  <div id="network">
+    <div class="map-wrap"><svg id="scSvg"></svg></div>
+
+    <div class="strip">
+      <div class="strip-label">SCM Concepts</div>
+      <div class="strip-cards">
+
+        <div class="sc">
+          <div class="sc-hd"><span class="sc-badge">1</span><span class="sc-title">Chain Surplus</span></div>
+          <div class="sc-body">The objective of every supply chain is to maximise total value generated — the gap between what customers value the product at and what it costs the chain to deliver it.</div>
+          <div class="sc-formula">Surplus = Customer Value − SC Cost</div>
         </div>
+
+        <div class="sc">
+          <div class="sc-hd"><span class="sc-badge">2</span><span class="sc-title">Macro Processes</span></div>
+          <div class="sc-body">All SC activities belong to one of three macro processes. ВкусВилл's edge comes from tight SRM–ISCM–CRM alignment.</div>
+          <div class="chips">
+            <span class="chip">SRM — Supplier</span>
+            <span class="chip">ISCM — Internal</span>
+            <span class="chip">CRM — Customer</span>
+          </div>
+        </div>
+
+        <div class="sc">
+          <div class="sc-hd"><span class="sc-badge">3</span><span class="sc-title">Decision Phases</span></div>
+          <div class="sc-body">Design constrains planning, which constrains daily operation. Each phase must account for uncertainty over its own time horizon.</div>
+          <div class="chips">
+            <span class="chip">Strategy · years</span>
+            <span class="chip">Planning · quarters</span>
+            <span class="chip">Operation · daily</span>
+          </div>
+        </div>
+
+        <div class="sc">
+          <div class="sc-hd"><span class="sc-badge">4</span><span class="sc-title">Push / Pull</span></div>
+          <div class="sc-body">Procurement and manufacturing are forecast-driven (push). ВкусВилл's app ordering, dark-store picking, and last-mile delivery are demand-driven (pull).</div>
+          <div class="chips">
+            <span class="chip">Push · speculative</span>
+            <span class="chip">Pull · reactive</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bridge ──────────────────────────────────── -->
+  <div class="bridge">
+    <div>
+      <div class="br-label">Section 02</div>
+      <div class="br-title">Competitive Advantage Analysis</div>
+    </div>
+    <div class="br-rule"></div>
+    <div class="br-num">Strategic Framework</div>
+  </div>
+
+  <!-- ── Section 02: CA Infographic ─────────────── -->
+  <section id="analysis" class="ca">
+
+    <!-- Porter's Framework -->
+    <div>
+      <div class="ca-hd">
+        <div class="ca-kicker">Porter's Framework · §1.7</div>
+        <div class="ca-title">Two Basic Types of Competitive Advantage</div>
+      </div>
+      <div class="porter">
+
+        <div class="pc cost">
+          <div class="pc-type">Type I</div>
+          <div class="pc-name">Cost Advantage</div>
+          <div class="pc-desc">A company utilises its skilled workforce, inexpensive raw materials, controlled costs, and efficient operations to deliver maximum value at the lowest achievable cost to the end consumer.</div>
+          <div class="pc-tags">
+            <span class="pc-tag">Lean operations</span>
+            <span class="pc-tag">Raw-material control</span>
+            <span class="pc-tag">Scale economies</span>
+            <span class="pc-tag">Skilled workforce</span>
+          </div>
+        </div>
+
+        <div class="pc diff">
+          <div class="pc-type">Type II</div>
+          <div class="pc-name">Differentiation Advantage</div>
+          <div class="pc-desc">A company's product or service offers a valuable, unique proposition across product, service, people, image, quality, or innovation dimensions — allowing it to command a premium or earn exceptional loyalty.</div>
+          <div class="pc-tags">
+            <span class="pc-tag">Product</span>
+            <span class="pc-tag">Service</span>
+            <span class="pc-tag">People</span>
+            <span class="pc-tag">Image</span>
+            <span class="pc-tag">Quality</span>
+            <span class="pc-tag">Innovation</span>
+          </div>
+          <div class="vv-note"><span class="vv-dot"></span>ВкусВилл primarily pursues differentiation advantage</div>
+        </div>
+
+      </div>
     </div>
 
-    <!-- ── COMPETITIVE ADVANTAGE ── -->
-    <div id="ca" class="tab-pane">
-        <div class="map-svg-wrap"><svg id="caSvg"></svg></div>
-        <div class="info-panel">
-            <div class="panel-side">Porter's Framework</div>
-            <div class="panel-cards">
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">1</span><span class="p-title">Two Basic Types</span></div>
-                    <div class="p-body">According to M. Porter, every firm's sustainable advantage is rooted in either lower costs than rivals or meaningful differentiation that justifies a premium price in the market.</div>
-                    <div class="p-chips">
-                        <span class="p-chip">Cost Leadership</span>
-                        <span class="p-chip">Differentiation</span>
-                    </div>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">2</span><span class="p-title">Four Building Blocks</span></div>
-                    <div class="p-body">Competitive advantage is built on four interconnected pillars: operational efficiency, product and service quality, continuous innovation, and genuine responsiveness to customers.</div>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">3</span><span class="p-title">VRIN Criteria</span></div>
-                    <div class="p-body">A sustainable competitive advantage must pass all four VRIN tests simultaneously to remain durable against imitation, rivalry, and substitution over the long term.</div>
-                    <div class="p-chips">
-                        <span class="p-chip">Valuable</span>
-                        <span class="p-chip">Rare</span>
-                        <span class="p-chip">Inimitable</span>
-                        <span class="p-chip">Non-substitutable</span>
-                    </div>
-                </div>
-                <div class="p-card">
-                    <div class="p-head"><span class="p-num">4</span><span class="p-title">ВкусВилл's Edge</span></div>
-                    <div class="p-body">ВкусВилл differentiates through private-label quality control, direct farm sourcing (SRM), and a sticky digital loyalty ecosystem (CRM) — a rare combination that is genuinely hard to replicate quickly.</div>
-                </div>
-            </div>
+    <!-- Four Building Blocks -->
+    <div>
+      <div class="ca-hd">
+        <div class="ca-kicker">Building Blocks · §1.7</div>
+        <div class="ca-title">Four Pillars of Competitive Advantage</div>
+      </div>
+      <div class="blocks">
+
+        <div class="blk">
+          <div class="blk-icon" style="background:#FEF9C3;">⚡</div>
+          <div class="blk-name">Efficiency</div>
+          <div class="blk-desc">Producing goods and services at minimum cost relative to rivals — maximising output per unit of input across the entire chain.</div>
+          <div class="blk-vv">→ Private-label removes retail markup layer</div>
         </div>
+
+        <div class="blk">
+          <div class="blk-icon" style="background:#DCFCE7;">✦</div>
+          <div class="blk-name">Quality</div>
+          <div class="blk-desc">Consistently delivering products that meet or exceed expectations, reducing defects and returns while building enduring trust.</div>
+          <div class="blk-vv">→ "No nasty ingredients" brand promise</div>
+        </div>
+
+        <div class="blk">
+          <div class="blk-icon" style="background:#EDE9FE;">◈</div>
+          <div class="blk-name">Innovation</div>
+          <div class="blk-desc">Developing new products, processes, or business models that create entirely new value propositions and disrupt incumbents.</div>
+          <div class="blk-vv">→ Dark stores, app-native loyalty ecosystem</div>
+        </div>
+
+        <div class="blk">
+          <div class="blk-icon" style="background:#DBEAFE;">◉</div>
+          <div class="blk-name">Customer Responsiveness</div>
+          <div class="blk-desc">Satisfying customer needs faster and more precisely than rivals — through speed, customisation, and excellent service recovery.</div>
+          <div class="blk-vv">→ Real-time feedback loop to suppliers</div>
+        </div>
+
+      </div>
     </div>
 
-</div>
+    <!-- VRIN Assessment -->
+    <div class="vrin-card">
+      <div class="ca-hd">
+        <div class="ca-kicker">Sustainability Criteria · §1.7</div>
+        <div class="ca-title">VRIN Assessment — ВкусВилл's Competitive Position</div>
+      </div>
+      <div class="vrin-meta">Estimated scores based on market position, brand characteristics, and supply chain structure.</div>
+      <div class="vrin-rows">
+
+        <div class="vrin-row">
+          <div class="vl" style="background:#16A34A;">V</div>
+          <div>
+            <div class="vlabel">Valuable</div>
+            <div class="vsub">Clean-label private products meet genuine consumer demand</div>
+          </div>
+          <div class="vbar-bg"><div class="vbar" data-w="88%" style="background:linear-gradient(90deg,#4ADE80,#16A34A);"></div></div>
+          <div class="vpct">88%</div>
+        </div>
+
+        <div class="vrin-row">
+          <div class="vl" style="background:#2563EB;">R</div>
+          <div>
+            <div class="vlabel">Rare</div>
+            <div class="vsub">Farm-direct + private-label + digital loyalty is an uncommon combination</div>
+          </div>
+          <div class="vbar-bg"><div class="vbar" data-w="76%" style="background:linear-gradient(90deg,#60A5FA,#2563EB);"></div></div>
+          <div class="vpct">76%</div>
+        </div>
+
+        <div class="vrin-row">
+          <div class="vl" style="background:#7C3AED;">I</div>
+          <div>
+            <div class="vlabel">Inimitable</div>
+            <div class="vsub">Supplier relationships and brand trust take many years to accumulate</div>
+          </div>
+          <div class="vbar-bg"><div class="vbar" data-w="71%" style="background:linear-gradient(90deg,#A78BFA,#7C3AED);"></div></div>
+          <div class="vpct">71%</div>
+        </div>
+
+        <div class="vrin-row">
+          <div class="vl" style="background:#B45309;">N</div>
+          <div>
+            <div class="vlabel">Non-substitutable</div>
+            <div class="vsub">Combination of attributes is genuinely hard to fully replicate or replace</div>
+          </div>
+          <div class="vbar-bg"><div class="vbar" data-w="67%" style="background:linear-gradient(90deg,#FCD34D,#B45309);"></div></div>
+          <div class="vpct">67%</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sources of Advantage -->
+    <div>
+      <div class="ca-hd">
+        <div class="ca-kicker">Sources · §1.7</div>
+        <div class="ca-title">Sources of Competitive Advantage</div>
+      </div>
+      <div class="sources">
+        <div class="src hi"><div class="src-icon">💡</div><div class="src-name">Innovations</div><div class="src-note">New formats, products, and digital services continuously extend the brand's lead over rivals.</div><span class="src-vv">Core for ВкусВилл</span></div>
+        <div class="src hi"><div class="src-icon">❤️</div><div class="src-name">Customer Loyalty</div><div class="src-note">App-based loyalty programme locks in repeat purchase behaviour and generates rich first-party data.</div><span class="src-vv">Core for ВкусВилл</span></div>
+        <div class="src hi"><div class="src-icon">◆</div><div class="src-name">Brand Value</div><div class="src-note">Strong "honest food" positioning creates a premium-adjacent perception in health-conscious segments.</div><span class="src-vv">Core for ВкусВилл</span></div>
+        <div class="src hi"><div class="src-icon">🤝</div><div class="src-name">Sustainable Partnerships</div><div class="src-note">Long-term farm supplier relationships ensure consistent quality and reliable cold-chain supply.</div><span class="src-vv">Core for ВкусВилл</span></div>
+        <div class="src"><div class="src-icon">👥</div><div class="src-name">Talent Attraction</div><div class="src-note">Attracting and retaining the most valuable employees in product development, logistics, and tech.</div></div>
+        <div class="src"><div class="src-icon">🌍</div><div class="src-name">Geographic Expansion</div><div class="src-note">Expanding the store and dark-store network to capture untapped urban and suburban markets.</div></div>
+        <div class="src"><div class="src-icon">🏘️</div><div class="src-name">Local Community</div><div class="src-note">Supporting local producers and community initiatives builds grassroots goodwill and brand trust.</div></div>
+        <div class="src"><div class="src-icon">⚖️</div><div class="src-name">Trade Union Relations</div><div class="src-note">Positive labour relations contribute to operational stability and protect the public reputation.</div></div>
+      </div>
+    </div>
+
+    <!-- Durability Factors -->
+    <div>
+      <div class="ca-hd">
+        <div class="ca-kicker">Durability · §1.7</div>
+        <div class="ca-title">Factors Affecting Longevity of Competitive Advantage</div>
+      </div>
+      <div class="dur">
+        <div class="dc">
+          <div class="dc-n">01</div>
+          <div class="dc-title">Barriers to Imitation</div>
+          <div class="dc-desc">Proprietary recipes, deep supplier contracts, accumulated brand trust, and a mature digital loyalty platform collectively raise the cost of imitation for potential rivals.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-n">02</div>
+          <div class="dc-title">Capability of Competitors</div>
+          <div class="dc-desc">The strategic focus, resources, and speed of current and emerging competitors determines how quickly an existing advantage can be matched or eroded in the marketplace.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-n">03</div>
+          <div class="dc-title">Industry Dynamism</div>
+          <div class="dc-desc">Russian food retail is moderately dynamic, giving ВкусВилл a meaningful window to compound its structural advantages before broader market imitation takes hold.</div>
+        </div>
+      </div>
+    </div>
+
+  </section><!-- /ca -->
+</div><!-- /scroll -->
 
 <script>
-// ── Palette ──────────────────────────────────────────────────────────────────
-// fill/stroke/text → level-1 hexagons (dark bg, white text)
-// cf/cs/ct         → level-2 rounded rects (pale bg, coloured border, dark text)
-const P = {
-    center:    { fill:'#2C5A30', stroke:'#4CA050', text:'#FFFFFF', cf:'#D8ECDA', cs:'#5CA060', ct:'#183A1A' },
-    rawmat:    { fill:'#3A6C2C', stroke:'#68A058', text:'#FFFFFF', cf:'#D8EAD0', cs:'#68A058', ct:'#1E3C18' },
-    manuf:     { fill:'#28527A', stroke:'#5488B0', text:'#FFFFFF', cf:'#CCE0EE', cs:'#5488B0', ct:'#18303C' },
-    procure:   { fill:'#6C5220', stroke:'#9C8248', text:'#FFFFFF', cf:'#EEE4CC', cs:'#9C8248', ct:'#3C2C10' },
-    warehouse: { fill:'#1E6868', stroke:'#4C9898', text:'#FFFFFF', cf:'#C8ECEC', cs:'#4C9898', ct:'#103838' },
-    retail:    { fill:'#446030', stroke:'#749060', text:'#FFFFFF', cf:'#DAE8CC', cs:'#749060', ct:'#243418' },
-    digital:   { fill:'#2E3870', stroke:'#5C6CA0', text:'#FFFFFF', cf:'#D0D4EC', cs:'#5C6CA0', ct:'#181E40' },
-    customers: { fill:'#682434', stroke:'#986068', text:'#FFFFFF', cf:'#EED0D4', cs:'#986068', ct:'#381420' },
-    returns:   { fill:'#585028', stroke:'#888050', text:'#FFFFFF', cf:'#E4E0CC', cs:'#888050', ct:'#302C14' },
-    caCenter:  { fill:'#483818', stroke:'#887040', text:'#FFFFFF', cf:'#ECE4D0', cs:'#887040', ct:'#281E08' },
-    gold:      { fill:'#6A5018', stroke:'#AA8030', text:'#FFFFFF', cf:'#F0E4C4', cs:'#AA8030', ct:'#382808' },
-    green2:    { fill:'#2A6032', stroke:'#5A9062', text:'#FFFFFF', cf:'#D4EAD8', cs:'#5A9062', ct:'#183C1A' },
-    sky:       { fill:'#264C6C', stroke:'#5488A8', text:'#FFFFFF', cf:'#CCDEEC', cs:'#5488A8', ct:'#182C3C' },
-    dustRose:  { fill:'#683840', stroke:'#986070', text:'#FFFFFF', cf:'#EED8DC', cs:'#986070', ct:'#381820' },
-    lime:      { fill:'#3E5818', stroke:'#6C8848', text:'#FFFFFF', cf:'#DCE8C8', cs:'#6C8848', ct:'#20300C' },
-    purple:    { fill:'#482E68', stroke:'#785E98', text:'#FFFFFF', cf:'#DCDAEA', cs:'#785E98', ct:'#281838' },
-    teal:      { fill:'#1C5E5E', stroke:'#489898', text:'#FFFFFF', cf:'#C8ECEC', cs:'#489898', ct:'#103030' },
+/* ━━━ Palette ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const P={
+  center:   {fill:'#14532D',stroke:'#4ADE80',text:'#fff', cf:'#DCFCE7',cs:'#4ADE80',ct:'#14532D'},
+  rawmat:   {fill:'#1A4731',stroke:'#6EE7B7',text:'#fff', cf:'#D1FAE5',cs:'#34D399',ct:'#064E3B'},
+  manuf:    {fill:'#1E3A5F',stroke:'#93C5FD',text:'#fff', cf:'#DBEAFE',cs:'#60A5FA',ct:'#1E3A5F'},
+  procure:  {fill:'#5C3A0E',stroke:'#FCD34D',text:'#fff', cf:'#FEF3C7',cs:'#FBBF24',ct:'#5C3A0E'},
+  warehouse:{fill:'#134E4A',stroke:'#5EEAD4',text:'#fff', cf:'#CCFBF1',cs:'#2DD4BF',ct:'#134E4A'},
+  retail:   {fill:'#3B5C0F',stroke:'#BEF264',text:'#fff', cf:'#ECFCCB',cs:'#A3E635',ct:'#365314'},
+  digital:  {fill:'#1E1B4B',stroke:'#A5B4FC',text:'#fff', cf:'#E0E7FF',cs:'#818CF8',ct:'#1E1B4B'},
+  customers:{fill:'#4C0519',stroke:'#FDA4AF',text:'#fff', cf:'#FFE4E6',cs:'#FB7185',ct:'#4C0519'},
+  returns:  {fill:'#431407',stroke:'#FDBA74',text:'#fff', cf:'#FFEDD5',cs:'#FB923C',ct:'#431407'},
 };
 
-// ── Supply Chain data ─────────────────────────────────────────────────────────
-const scData = {
-    center: { label:'ВкусВилл\nSupply\nChain', colorKey:'center' },
-    nodes:[
-        { label:'Raw Material\nSuppliers',       x:-265, y:-192, color:'rawmat', children:[
-            { label:'Dairy Farms',               x:-400, y:-308 },
-            { label:'Fruit & Veg\nGrowers',      x:-460, y:-200 },
-            { label:'Meat &\nPoultry',           x:-445, y:-90  },
-            { label:'Bakery\nIngredients',       x:-375, y:12   },
-        ]},
-        { label:'Private Label\nManufacturing',  x:0,    y:-270, color:'manuf', children:[
-            { label:'Own\nProduction Sites',     x:-125, y:-388 },
-            { label:'Contract\nManufacturers',   x:-45,  y:-420 },
-            { label:'QC Labs',                   x:45,   y:-420 },
-            { label:'R&D &\nRecipe Dev.',        x:125,  y:-388 },
-        ]},
-        { label:'Procurement\n& Inbound',        x:265,  y:-192, color:'procure', children:[
-            { label:'Supplier\nContracts',       x:392,  y:-312 },
-            { label:'SRM\nPlatform',             x:452,  y:-205 },
-            { label:'Incoming\nQA Checks',       x:465,  y:-95  },
-            { label:'Cold-Chain\nInbound',       x:425,  y:14   },
-        ]},
-        { label:'Warehousing &\nDistribution',   x:322,  y:70,   color:'warehouse', children:[
-            { label:'Regional\nDist. Centres',   x:468,  y:-22  },
-            { label:'Cold Storage\nFacilities',  x:482,  y:90   },
-            { label:'Cross-\nDocking',           x:445,  y:198  },
-        ]},
-        { label:'Retail\nNetwork',               x:265,  y:228,  color:'retail', children:[
-            { label:'Urban Conv.\nStores',       x:392,  y:310  },
-            { label:'Suburban\nLocations',       x:345,  y:388  },
-            { label:'Flagship\nFormat',          x:228,  y:418  },
-        ]},
-        { label:'Digital &\nDelivery',           x:0,    y:318,  color:'digital', children:[
-            { label:'ВкусВилл\nApp',             x:-98,  y:432  },
-            { label:'Dark\nStores',              x:0,    y:460  },
-            { label:'Last-Mile\nCouriers',       x:98,   y:432  },
-        ]},
-        { label:'Customers',                     x:-265, y:228,  color:'customers', children:[
-            { label:'Health-\nConscious',        x:-392, y:310  },
-            { label:'Loyalty\nApp Users',        x:-345, y:388  },
-            { label:'Subscription\nCustomers',   x:-230, y:418  },
-            { label:'B2B /\nCorporate',          x:-120, y:394  },
-        ]},
-        { label:'Returns &\nFeedback Loop',      x:-322, y:70,   color:'returns', children:[
-            { label:'Product\nReturns',          x:-458, y:-18  },
-            { label:'Customer\nFeedback',        x:-475, y:92   },
-            { label:'Supplier\nScorecard',       x:-445, y:202  },
-        ]},
-    ]
+/* ━━━ Data ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const scData={
+  center:{label:'ВкусВилл\nSupply\nChain',colorKey:'center'},
+  nodes:[
+    {label:'Raw Material\nSuppliers',x:-258,y:-178,color:'rawmat',children:[
+      {label:'Dairy Farms',x:-388,y:-295},{label:'Fruit & Veg\nGrowers',x:-445,y:-188},
+      {label:'Meat &\nPoultry',x:-432,y:-82},{label:'Bakery\nIngredients',x:-365,y:16},
+    ]},
+    {label:'Private Label\nManufacturing',x:0,y:-262,color:'manuf',children:[
+      {label:'Own\nProduction Sites',x:-118,y:-375},{label:'Contract\nManufacturers',x:-42,y:-405},
+      {label:'QC Labs',x:42,y:-405},{label:'R&D &\nRecipe Dev.',x:118,y:-375},
+    ]},
+    {label:'Procurement\n& Inbound',x:258,y:-178,color:'procure',children:[
+      {label:'Supplier\nContracts',x:385,y:-295},{label:'SRM\nPlatform',x:442,y:-188},
+      {label:'Incoming\nQA Checks',x:455,y:-80},{label:'Cold-Chain\nInbound',x:415,y:18},
+    ]},
+    {label:'Warehousing &\nDistribution',x:315,y:65,color:'warehouse',children:[
+      {label:'Regional\nDist. Centres',x:455,y:-20},{label:'Cold Storage\nFacilities',x:472,y:85},
+      {label:'Cross-\nDocking',x:435,y:190},
+    ]},
+    {label:'Retail\nNetwork',x:258,y:220,color:'retail',children:[
+      {label:'Urban Conv.\nStores',x:382,y:300},{label:'Suburban\nLocations',x:335,y:378},
+      {label:'Flagship\nFormat',x:220,y:408},
+    ]},
+    {label:'Digital &\nDelivery',x:0,y:312,color:'digital',children:[
+      {label:'ВкусВилл\nApp',x:-95,y:424},{label:'Dark\nStores',x:0,y:452},
+      {label:'Last-Mile\nCouriers',x:95,y:424},
+    ]},
+    {label:'Customers',x:-258,y:220,color:'customers',children:[
+      {label:'Health-\nConscious',x:-382,y:300},{label:'Loyalty\nApp Users',x:-335,y:378},
+      {label:'Subscription\nCustomers',x:-222,y:408},{label:'B2B /\nCorporate',x:-115,y:385},
+    ]},
+    {label:'Returns &\nFeedback Loop',x:-315,y:65,color:'returns',children:[
+      {label:'Product\nReturns',x:-452,y:-20},{label:'Customer\nFeedback',x:-468,y:85},
+      {label:'Supplier\nScorecard',x:-435,y:190},
+    ]},
+  ]
 };
 
-// ── Competitive Advantage data ────────────────────────────────────────────────
-const caData = {
-    center: { label:'Competitive\nAdvantage', colorKey:'caCenter' },
-    nodes:[
-        { label:"Porter's\nTwo Types",           x:-255, y:-192, color:'gold', children:[
-            { label:'Cost\nLeadership',          x:-382, y:-312 },
-            { label:'Differentiation',           x:-445, y:-208 },
-            { label:'Focus\nStrategy',           x:-435, y:-100 },
-        ]},
-        { label:'Four\nBuilding Blocks',         x:0,    y:-268, color:'green2', children:[
-            { label:'Efficiency',                x:-118, y:-382 },
-            { label:'Quality',                   x:-42,  y:-418 },
-            { label:'Innovation',                x:42,   y:-418 },
-            { label:'Customer\nResponsiveness',  x:120,  y:-382 },
-        ]},
-        { label:'Durability\nFactors',           x:255,  y:-192, color:'sky', children:[
-            { label:'Barriers to\nImitation',    x:382,  y:-312 },
-            { label:'Competitor\nCapability',    x:445,  y:-205 },
-            { label:'Industry\nDynamism',        x:438,  y:-95  },
-        ]},
-        { label:'Sustainable CA\n(VRIN)',        x:322,  y:68,   color:'lime', children:[
-            { label:'Valuable',                  x:458,  y:-22  },
-            { label:'Rare',                      x:478,  y:88   },
-            { label:'Inimitable',                x:448,  y:196  },
-            { label:'Non-\nsubstitutable',       x:382,  y:282  },
-        ]},
-        { label:'Sources of\nAdvantage',         x:255,  y:228,  color:'teal', children:[
-            { label:'Innovations',               x:385,  y:312  },
-            { label:'Customer\nLoyalty',         x:338,  y:388  },
-            { label:'Brand\nValue',              x:222,  y:418  },
-            { label:'Sustainable\nPartnerships', x:120,  y:392  },
-        ]},
-        { label:'Causes of\nChange',             x:0,    y:315,  color:'dustRose', children:[
-            { label:'New\nTechnologies',         x:-98,  y:428  },
-            { label:'Shifting\nBuyer Needs',     x:0,    y:460  },
-            { label:'Regulatory\nChanges',       x:98,   y:428  },
-        ]},
-        { label:'Types of CA',                   x:-255, y:228,  color:'purple', children:[
-            { label:'Short-term\nvs Long-term',  x:-385, y:312  },
-            { label:'Imitated\nvs Unique',       x:-338, y:388  },
-            { label:'Internal\nvs External',     x:-222, y:418  },
-        ]},
-        { label:'Conditions\nfor CA',            x:-322, y:68,   color:'green2', children:[
-            { label:'Heterogeneity\nof Resources',x:-458,y:-18  },
-            { label:'Ex-post\nLimits',           x:-478, y:90   },
-            { label:'Imperfect\nMobility',       x:-448, y:198  },
-            { label:'Ex-ante\nLimits',           x:-382, y:282  },
-        ]},
-    ]
-};
-
-// ── MindMap engine ────────────────────────────────────────────────────────────
-class MindMap {
-    constructor(svgId, data) {
-        this.svg   = document.getElementById(svgId);
-        this.data  = data;
-        this.nodes = [];
-        this.drag  = null;
-        this._last = null;
-        this._raf  = null;
-        this._resize();
-        this._build();
-        this._defs();
-        this._listen();
-        this._tick();
-    }
-
-    _resize() {
-        const wrap = document.querySelector('.canvas-wrap');
-        this.W  = wrap.clientWidth;
-        this.H  = wrap.clientHeight;
-        this.cx = this.W / 2;
-        this.cy = this.H / 2;
-        this.svg.setAttribute('viewBox', `0 0 ${this.W} ${this.H}`);
-    }
-
-    /* Flat-top hexagon vertex string */
-    _hex(cx, cy, r) {
-        return Array.from({length:6}, (_,i) => {
-            const a = (Math.PI / 3) * i;
-            return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-        }).join(' ');
-    }
-
-    _build() {
-        this.nodes = [];
-        const { cx, cy } = this;
-        const cKey = this.data.center.colorKey || 'center';
-        const cP   = P[cKey] || P.center;
-
-        this.nodes.push({
-            x:cx, y:cy, vx:0, vy:0,
-            label:this.data.center.label,
-            isCenter:true,
-            pal:{ fill:cP.fill, stroke:cP.stroke, text:cP.text },
-            r:60, level:0, restDist:0, parent:null
-        });
-
-        this.data.nodes.forEach(nd => {
-            const pal  = P[nd.color] || P.rawmat;
-            const main = {
-                x:cx + nd.x, y:cy + nd.y,
-                vx:(Math.random()-.5)*0.06, vy:(Math.random()-.5)*0.06,
-                label:nd.label, parent:this.nodes[0],
-                pal:{ fill:pal.fill, stroke:pal.stroke, text:pal.text },
-                r:50, level:1, restDist:232
-            };
-            this.nodes.push(main);
-
-            (nd.children||[]).forEach(cd => {
-                this.nodes.push({
-                    x:cx + cd.x, y:cy + cd.y,
-                    vx:(Math.random()-.5)*0.05, vy:(Math.random()-.5)*0.05,
-                    label:cd.label, parent:main,
-                    pal:{ fill:pal.cf, stroke:pal.cs, text:pal.ct },
-                    r:44, level:2, restDist:156
-                });
-            });
-        });
-    }
-
-    _defs() {
-        this.svg.innerHTML = `<defs>
-          <filter id="sh0" x="-40%" y="-40%" width="180%" height="180%">
-            <feDropShadow dx="0" dy="5" stdDeviation="13" flood-color="rgba(0,18,0,0.24)"/>
-          </filter>
-          <filter id="sh1" x="-40%" y="-40%" width="180%" height="180%">
-            <feDropShadow dx="0" dy="3" stdDeviation="7"  flood-color="rgba(0,18,0,0.16)"/>
-          </filter>
-          <filter id="sh2" x="-40%" y="-40%" width="180%" height="180%">
-            <feDropShadow dx="0" dy="1" stdDeviation="3"  flood-color="rgba(0,18,0,0.10)"/>
-          </filter>
-        </defs>`;
-    }
-
-    _render() {
-        [...this.svg.children].forEach(c => { if (c.tagName !== 'defs') c.remove(); });
-        const NS = 'http://www.w3.org/2000/svg';
-        const lg = document.createElementNS(NS,'g');
-        const ng = document.createElementNS(NS,'g');
-        this.svg.append(lg, ng);
-
-        /* Connections */
-        this.nodes.forEach(n => {
-            if (!n.parent) return;
-            const ln = document.createElementNS(NS,'line');
-            ln.setAttribute('x1', n.parent.x); ln.setAttribute('y1', n.parent.y);
-            ln.setAttribute('x2', n.x);         ln.setAttribute('y2', n.y);
-            ln.setAttribute('stroke', n.level===1 ? 'rgba(50,110,55,0.42)' : 'rgba(80,140,80,0.25)');
-            ln.setAttribute('stroke-width', n.level===1 ? '2.0' : '1.4');
-            if (n.level===2) ln.setAttribute('stroke-dasharray','5,4');
-            lg.appendChild(ln);
-        });
-
-        /* Nodes */
-        this.nodes.forEach((n,i) => {
-            const g = document.createElementNS(NS,'g');
-            g.setAttribute('data-i', i);
-            g.style.cursor = 'grab';
-
-            if (n.isCenter) {
-                const W=120, H=64;
-                const r = document.createElementNS(NS,'rect');
-                r.setAttribute('x', n.x-W/2); r.setAttribute('y', n.y-H/2);
-                r.setAttribute('width', W);    r.setAttribute('height', H);
-                r.setAttribute('rx','14');
-                r.setAttribute('fill', n.pal.fill);
-                r.setAttribute('stroke', n.pal.stroke);
-                r.setAttribute('stroke-width','2.5');
-                r.setAttribute('filter','url(#sh0)');
-                g.appendChild(r);
-            } else if (n.level===1) {
-                const poly = document.createElementNS(NS,'polygon');
-                poly.setAttribute('points', this._hex(n.x, n.y, n.r));
-                poly.setAttribute('fill',         n.pal.fill);
-                poly.setAttribute('stroke',       n.pal.stroke);
-                poly.setAttribute('stroke-width', '2');
-                poly.setAttribute('filter','url(#sh1)');
-                g.appendChild(poly);
-            } else {
-                const W=90, H=40;
-                const r = document.createElementNS(NS,'rect');
-                r.setAttribute('x', n.x-W/2); r.setAttribute('y', n.y-H/2);
-                r.setAttribute('width', W);    r.setAttribute('height', H);
-                r.setAttribute('rx','8');
-                r.setAttribute('fill',         n.pal.fill);
-                r.setAttribute('stroke',       n.pal.stroke);
-                r.setAttribute('stroke-width','1.6');
-                r.setAttribute('filter','url(#sh2)');
-                g.appendChild(r);
-            }
-
-            const lines = n.label.split('\n');
-            const lh    = n.isCenter ? 15 : (n.level===1 ? 13 : 11);
-            const tot   = (lines.length-1)*lh;
-            lines.forEach((txt,li) => {
-                const t = document.createElementNS(NS,'text');
-                t.setAttribute('x', n.x);
-                t.setAttribute('y', n.y - tot/2 + li*lh + 5);
-                t.setAttribute('text-anchor','middle');
-                t.setAttribute('fill', n.pal.text);
-                t.setAttribute('font-family',"'Nunito',sans-serif");
-                t.setAttribute('font-size', n.isCenter?'13':(n.level===1?'10.5':'9.5'));
-                t.setAttribute('font-weight','700');
-                t.style.pointerEvents='none';
-                t.style.userSelect='none';
-                t.textContent=txt;
-                g.appendChild(t);
-            });
-            ng.appendChild(g);
-        });
-    }
-
-    _tick() {
-        const now = performance.now();
-        const dt  = Math.min(((now-(this._last||now))/16.667),2.5);
-        this._last = now;
-
-        this.nodes.forEach((n,i) => {
-            if (this.drag===i || !n.parent) return;
-            const dx=n.parent.x-n.x, dy=n.parent.y-n.y;
-            const dist=Math.sqrt(dx*dx+dy*dy)||1;
-            const f=(dist-n.restDist)*0.005*dt;
-            n.vx += (dx/dist)*f + (Math.random()-.5)*0.009*dt;
-            n.vy += (dy/dist)*f + (Math.random()-.5)*0.009*dt;
-            n.vx *= Math.pow(0.968,dt);
-            n.vy *= Math.pow(0.968,dt);
-            const spd=Math.sqrt(n.vx*n.vx+n.vy*n.vy);
-            if(spd>1.0){n.vx/=spd; n.vy/=spd;}
-            n.x+=n.vx*dt; n.y+=n.vy*dt;
-            const m=n.r+12;
-            if(n.x<m)        n.vx+=(m-n.x)*0.07;
-            if(n.x>this.W-m) n.vx-=(n.x-(this.W-m))*0.07;
-            if(n.y<m)        n.vy+=(m-n.y)*0.07;
-            if(n.y>this.H-m) n.vy-=(n.y-(this.H-m))*0.07;
-        });
-        this._render();
-        this._raf=requestAnimationFrame(()=>this._tick());
-    }
-
-    _listen() {
-        const svg=this.svg;
-        svg.addEventListener('mousedown',e=>{
-            const g=e.target.closest('g[data-i]');
-            if(g) this.drag=+g.getAttribute('data-i');
-        });
-        svg.addEventListener('mousemove',e=>{
-            if(this.drag===null) return;
-            const rc=svg.getBoundingClientRect(), n=this.nodes[this.drag];
-            n.x=(e.clientX-rc.left)*(this.W/rc.width);
-            n.y=(e.clientY-rc.top) *(this.H/rc.height);
-            n.vx=n.vy=0;
-        });
-        const end=()=>{this.drag=null;};
-        svg.addEventListener('mouseup',end);
-        svg.addEventListener('mouseleave',end);
-        svg.addEventListener('touchstart',e=>{
-            const g=e.target.closest('g[data-i]');
-            if(g){e.preventDefault(); this.drag=+g.getAttribute('data-i');}
-        },{passive:false});
-        svg.addEventListener('touchmove',e=>{
-            if(this.drag===null) return;
-            e.preventDefault();
-            const t=e.touches[0], rc=svg.getBoundingClientRect(), n=this.nodes[this.drag];
-            n.x=(t.clientX-rc.left)*(this.W/rc.width);
-            n.y=(t.clientY-rc.top) *(this.H/rc.height);
-            n.vx=n.vy=0;
-        },{passive:false});
-        svg.addEventListener('touchend',end);
-    }
-
-    stop(){if(this._raf) cancelAnimationFrame(this._raf);}
+/* ━━━ MindMap engine ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+class MindMap{
+  constructor(svgId,data){
+    this.svg=document.getElementById(svgId);
+    this.data=data; this.nodes=[]; this.drag=null; this._last=null; this._raf=null;
+    this._resize(); this._build(); this._defs(); this._listen(); this._tick();
+  }
+  _resize(){
+    const el=this.svg.parentElement;
+    this.W=el.clientWidth||800; this.H=el.clientHeight||480;
+    this.cx=this.W/2; this.cy=this.H/2;
+    this.svg.setAttribute('viewBox',`0 0 ${this.W} ${this.H}`);
+  }
+  _hex(cx,cy,r){ /* flat-top */
+    return Array.from({length:6},(_,i)=>{
+      const a=(Math.PI/3)*i;
+      return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;
+    }).join(' ');
+  }
+  _build(){
+    this.nodes=[];
+    const{cx,cy}=this;
+    const cP=P[this.data.center.colorKey]||P.center;
+    this.nodes.push({x:cx,y:cy,vx:0,vy:0,label:this.data.center.label,isCenter:true,
+      pal:{fill:cP.fill,stroke:cP.stroke,text:cP.text},r:56,level:0,restDist:0,parent:null});
+    this.data.nodes.forEach(nd=>{
+      const pal=P[nd.color]||P.rawmat;
+      const main={x:cx+nd.x,y:cy+nd.y,vx:(Math.random()-.5)*.06,vy:(Math.random()-.5)*.06,
+        label:nd.label,parent:this.nodes[0],
+        pal:{fill:pal.fill,stroke:pal.stroke,text:pal.text},r:48,level:1,restDist:228};
+      this.nodes.push(main);
+      (nd.children||[]).forEach(cd=>{
+        this.nodes.push({x:cx+cd.x,y:cy+cd.y,vx:(Math.random()-.5)*.05,vy:(Math.random()-.5)*.05,
+          label:cd.label,parent:main,
+          pal:{fill:pal.cf,stroke:pal.cs,text:pal.ct},r:40,level:2,restDist:152});
+      });
+    });
+  }
+  _defs(){
+    this.svg.innerHTML=`<defs>
+      <filter id="s0" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="4" stdDeviation="11" flood-color="rgba(0,0,0,.22)"/>
+      </filter>
+      <filter id="s1" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="rgba(0,0,0,.14)"/>
+      </filter>
+      <filter id="s2" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="rgba(0,0,0,.09)"/>
+      </filter>
+    </defs>`;
+  }
+  _render(){
+    [...this.svg.children].forEach(c=>{if(c.tagName!=='defs')c.remove();});
+    const NS='http://www.w3.org/2000/svg';
+    const lg=document.createElementNS(NS,'g'), ng=document.createElementNS(NS,'g');
+    this.svg.append(lg,ng);
+    /* Lines */
+    this.nodes.forEach(n=>{
+      if(!n.parent) return;
+      const l=document.createElementNS(NS,'line');
+      l.setAttribute('x1',n.parent.x);l.setAttribute('y1',n.parent.y);
+      l.setAttribute('x2',n.x);l.setAttribute('y2',n.y);
+      l.setAttribute('stroke',n.level===1?'rgba(74,222,128,.38)':'rgba(74,222,128,.20)');
+      l.setAttribute('stroke-width',n.level===1?'1.8':'1.2');
+      if(n.level===2)l.setAttribute('stroke-dasharray','5,4');
+      lg.appendChild(l);
+    });
+    /* Nodes */
+    this.nodes.forEach((n,i)=>{
+      const g=document.createElementNS(NS,'g');
+      g.setAttribute('data-i',i); g.style.cursor='grab';
+      if(n.isCenter){
+        const W=112,H=60,r=document.createElementNS(NS,'rect');
+        r.setAttribute('x',n.x-W/2);r.setAttribute('y',n.y-H/2);
+        r.setAttribute('width',W);r.setAttribute('height',H);r.setAttribute('rx','12');
+        r.setAttribute('fill',n.pal.fill);r.setAttribute('stroke',n.pal.stroke);
+        r.setAttribute('stroke-width','2');r.setAttribute('filter','url(#s0)');
+        g.appendChild(r);
+      } else if(n.level===1){
+        const p=document.createElementNS(NS,'polygon');
+        p.setAttribute('points',this._hex(n.x,n.y,n.r));
+        p.setAttribute('fill',n.pal.fill);p.setAttribute('stroke',n.pal.stroke);
+        p.setAttribute('stroke-width','1.8');p.setAttribute('filter','url(#s1)');
+        g.appendChild(p);
+      } else {
+        const W=84,H=36,r=document.createElementNS(NS,'rect');
+        r.setAttribute('x',n.x-W/2);r.setAttribute('y',n.y-H/2);
+        r.setAttribute('width',W);r.setAttribute('height',H);r.setAttribute('rx','7');
+        r.setAttribute('fill',n.pal.fill);r.setAttribute('stroke',n.pal.stroke);
+        r.setAttribute('stroke-width','1.4');r.setAttribute('filter','url(#s2)');
+        g.appendChild(r);
+      }
+      const lines=n.label.split('\n'),lh=n.isCenter?14:(n.level===1?13:11);
+      const tot=(lines.length-1)*lh;
+      lines.forEach((tx,li)=>{
+        const t=document.createElementNS(NS,'text');
+        t.setAttribute('x',n.x);t.setAttribute('y',n.y-tot/2+li*lh+5);
+        t.setAttribute('text-anchor','middle');t.setAttribute('fill',n.pal.text);
+        t.setAttribute('font-family',"'Space Grotesk',sans-serif");
+        t.setAttribute('font-size',n.isCenter?'13':(n.level===1?'10.5':'9.5'));
+        t.setAttribute('font-weight','600');
+        t.style.pointerEvents='none';t.style.userSelect='none';t.textContent=tx;
+        g.appendChild(t);
+      });
+      ng.appendChild(g);
+    });
+  }
+  _tick(){
+    const now=performance.now();
+    const dt=Math.min(((now-(this._last||now))/16.667),2.5);
+    this._last=now;
+    this.nodes.forEach((n,i)=>{
+      if(this.drag===i||!n.parent)return;
+      const dx=n.parent.x-n.x,dy=n.parent.y-n.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+      const f=(dist-n.restDist)*.005*dt;
+      n.vx+=(dx/dist)*f+(Math.random()-.5)*.009*dt;
+      n.vy+=(dy/dist)*f+(Math.random()-.5)*.009*dt;
+      n.vx*=Math.pow(.968,dt);n.vy*=Math.pow(.968,dt);
+      const sp=Math.sqrt(n.vx*n.vx+n.vy*n.vy);if(sp>1){n.vx/=sp;n.vy/=sp;}
+      n.x+=n.vx*dt;n.y+=n.vy*dt;
+      const m=n.r+12;
+      if(n.x<m)n.vx+=(m-n.x)*.07; if(n.x>this.W-m)n.vx-=(n.x-(this.W-m))*.07;
+      if(n.y<m)n.vy+=(m-n.y)*.07; if(n.y>this.H-m)n.vy-=(n.y-(this.H-m))*.07;
+    });
+    this._render();
+    this._raf=requestAnimationFrame(()=>this._tick());
+  }
+  _listen(){
+    const s=this.svg;
+    s.addEventListener('mousedown',e=>{const g=e.target.closest('g[data-i]');if(g)this.drag=+g.getAttribute('data-i');});
+    s.addEventListener('mousemove',e=>{
+      if(this.drag===null)return;
+      const rc=s.getBoundingClientRect(),n=this.nodes[this.drag];
+      n.x=(e.clientX-rc.left)*(this.W/rc.width);n.y=(e.clientY-rc.top)*(this.H/rc.height);n.vx=n.vy=0;
+    });
+    const end=()=>{this.drag=null;};
+    s.addEventListener('mouseup',end);s.addEventListener('mouseleave',end);
+    s.addEventListener('touchstart',e=>{const g=e.target.closest('g[data-i]');if(g){e.preventDefault();this.drag=+g.getAttribute('data-i');}},{passive:false});
+    s.addEventListener('touchmove',e=>{
+      if(this.drag===null)return;e.preventDefault();
+      const t=e.touches[0],rc=s.getBoundingClientRect(),n=this.nodes[this.drag];
+      n.x=(t.clientX-rc.left)*(this.W/rc.width);n.y=(t.clientY-rc.top)*(this.H/rc.height);n.vx=n.vy=0;
+    },{passive:false});
+    s.addEventListener('touchend',end);
+  }
+  stop(){if(this._raf)cancelAnimationFrame(this._raf);}
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-let maps={};
-function init(){
-    Object.values(maps).forEach(m=>m.stop());
-    maps={};
-    maps.sc=new MindMap('scSvg',scData);
-    maps.ca=new MindMap('caSvg',caData);
+/* ━━━ Navigation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function navTo(id,btn){
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
 }
-function switchTab(name,btn){
-    document.querySelectorAll('.tab')     .forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(name).classList.add('active');
-}
-window.addEventListener('load',  init);
-window.addEventListener('resize',init);
+
+/* Update nav on scroll */
+const ms=document.getElementById('mainScroll');
+ms.addEventListener('scroll',()=>{
+  const an=document.getElementById('analysis');
+  const btns=document.querySelectorAll('.seg-btn');
+  if(an.getBoundingClientRect().top<ms.clientHeight/2){
+    btns[0].classList.remove('active'); btns[1].classList.add('active');
+  } else {
+    btns[1].classList.remove('active'); btns[0].classList.add('active');
+  }
+},{passive:true});
+
+/* ━━━ VRIN bar animation (IntersectionObserver) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const vObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.width=e.target.dataset.w;
+      vObserver.unobserve(e.target);
+    }
+  });
+},{threshold:.3});
+
+/* ━━━ Boot ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let scMap=null;
+window.addEventListener('load',()=>{
+  scMap=new MindMap('scSvg',scData);
+  document.querySelectorAll('.vbar').forEach(b=>{
+    b.dataset.w=b.style.width; b.style.width='0';
+    vObserver.observe(b);
+  });
+});
+window.addEventListener('resize',()=>{
+  if(scMap)scMap.stop();
+  scMap=new MindMap('scSvg',scData);
+});
 </script>
 </body>
 </html>
