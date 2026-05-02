@@ -12,13 +12,13 @@ The card title is derived from the <title> tag (stripping the
 tag when the browser tab title and the card title should differ.
 """
 
-import os
 import re
-import sys
 import html
+from pathlib import Path
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ROOT_INDEX = os.path.join(REPO_ROOT, "index.html")
+# Navigate from .github/scripts/ → .github/ → repo root
+REPO_ROOT = Path(__file__).parent.parent.parent
+ROOT_INDEX = REPO_ROOT / "index.html"
 SKIP_DIRS = {".git", ".github"}
 
 
@@ -28,8 +28,7 @@ def _attr(pattern, content):
 
 
 def extract_meta(html_path):
-    with open(html_path, encoding="utf-8") as f:
-        content = f.read()
+    content = Path(html_path).read_text(encoding="utf-8")
 
     # Card title: prefer explicit meta, fall back to <title>
     card_title = _attr(
@@ -43,7 +42,9 @@ def extract_meta(html_path):
             r"\s*[·—]\s*NUST MISIS\s*$", "", raw_title, flags=re.IGNORECASE
         ).strip()
     if not card_title:
-        card_title = os.path.basename(os.path.dirname(html_path)).replace("-", " ").title()
+        # Fallback: derive from folder name. For best results, add a <title>
+        # or <meta name="card-title"> to the subpage's index.html instead.
+        card_title = Path(html_path).parent.name.replace("-", " ").title()
 
     # Description
     description = _attr(
@@ -75,14 +76,9 @@ def build_cards_html(projects):
 def main():
     # Collect subfolders that have an index.html
     projects = []
-    for entry in sorted(os.listdir(REPO_ROOT)):
-        if entry in SKIP_DIRS:
-            continue
-        folder_path = os.path.join(REPO_ROOT, entry)
-        if not os.path.isdir(folder_path):
-            continue
-        index_path = os.path.join(folder_path, "index.html")
-        if not os.path.exists(index_path):
+    for entry in sorted(p.name for p in REPO_ROOT.iterdir() if p.is_dir() and p.name not in SKIP_DIRS):
+        index_path = REPO_ROOT / entry / "index.html"
+        if not index_path.exists():
             continue
         title, description = extract_meta(index_path)
         projects.append((entry, title, description))
@@ -93,8 +89,7 @@ def main():
 
     new_main = build_cards_html(projects)
 
-    with open(ROOT_INDEX, encoding="utf-8") as f:
-        original = f.read()
+    original = ROOT_INDEX.read_text(encoding="utf-8")
 
     updated = re.sub(
         r'    <main class="projects">.*?</main>',
@@ -107,8 +102,7 @@ def main():
         print("Root index.html is already up to date.")
         return
 
-    with open(ROOT_INDEX, "w", encoding="utf-8") as f:
-        f.write(updated)
+    ROOT_INDEX.write_text(updated, encoding="utf-8")
     print("Root index.html updated successfully.")
 
 
