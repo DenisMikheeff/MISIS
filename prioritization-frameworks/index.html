@@ -1,1 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prioritization Frameworks · NUST MISIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #1b2d5e;
+    --navy-deep:  #111e42;
+    --navy-light: #253870;
+    --blue:       #4472c4;
+    --blue-light: #5b8ed6;
+    --orange:     #e07020;
+    --orange-soft:#f09040;
+    --red:        #c0392b;
+    --green:      #27ae60;
+    --white:      #ffffff;
+    --off-white:  #f4f6fb;
+    --muted:      #8a99b8;
+    --border:     #d1d9ee;
+    --card:       #ffffff;
+    --shadow:     0 2px 18px rgba(27,45,94,0.10);
+    --shadow-lg:  0 6px 40px rgba(27,45,94,0.16);
+    --radius:     10px;
+    --radius-lg:  16px;
+  }
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--navy-deep);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 60%, var(--navy-light) 100%);
+    padding: 40px 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.018) 40px,
+      rgba(255,255,255,0.018) 41px
+    );
+  }
+  .site-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-soft), var(--blue-light));
+  }
+  .header-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .header-kicker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--orange-soft);
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .header-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    display: flex;
+    gap: 0;
+    margin-top: 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 14px 28px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    border-radius: var(--radius) var(--radius) 0 0;
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 16px; right: 16px;
+    height: 2px;
+    background: var(--orange);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 2px 2px 0 0;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.8); }
+  .tab-btn.active {
+    background: var(--off-white);
+    color: var(--navy-deep);
+  }
+  .tab-btn.active::after { opacity: 1; }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── THEORY CARD ── */
+  .theory-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 700px) { .theory-strip { grid-template-columns: 1fr; } }
+
+  .theory-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--blue);
+    position: relative;
+    overflow: hidden;
+  }
+  .theory-card.orange  { border-left-color: var(--orange); }
+  .theory-card.green   { border-left-color: var(--green); }
+  .theory-card.red     { border-left-color: var(--red); }
+  .theory-card::before {
+    content: '❝';
+    position: absolute;
+    top: -4px; right: 14px;
+    font-size: 52px;
+    color: var(--blue);
+    opacity: 0.07;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .theory-card.orange::before { color: var(--orange); }
+  .theory-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .theory-card.orange h4 { color: var(--orange); }
+  .theory-card.green  h4 { color: var(--green); }
+  .theory-card.red    h4 { color: var(--red); }
+  .theory-card p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #3a4460;
+    font-weight: 300;
+  }
+  .theory-card strong { font-weight: 500; color: var(--navy-deep); }
+
+  /* ── FORMULA BAR ── */
+  .formula-bar {
+    background: linear-gradient(90deg, var(--navy) 0%, var(--navy-light) 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .formula-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-right: 8px;
+  }
+  .formula-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.2px;
+  }
+  .formula-text .op { color: var(--orange-soft); margin: 0 4px; }
+  .formula-text .var { color: #9fbeff; }
+  .formula-text .denom { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+  .formula-text .denom .top { border-bottom: 1.5px solid var(--orange-soft); padding-bottom: 2px; margin-bottom: 2px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── CALCULATOR CARD ── */
+  .calc-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+
+  /* ── INPUTS ── */
+  .input-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .input-grid-2 { grid-template-columns: 1fr 1fr; }
+  .input-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .input-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  @media (max-width: 700px) {
+    .input-grid-2, .input-grid-3, .input-grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .field .hint {
+    font-size: 11px;
+    color: #a0aabf;
+    font-weight: 300;
+    margin-top: -3px;
+  }
+
+  input[type="text"], input[type="number"], select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--off-white);
+    color: var(--navy-deep);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(68,114,196,0.12);
+  }
+
+  /* ── SLIDER ── */
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slider-wrap input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+  }
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    box-shadow: 0 1px 6px rgba(68,114,196,0.4);
+  }
+  .slider-wrap input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--blue-light);
+    transform: scale(1.15);
+  }
+  .slider-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue);
+    min-width: 26px;
+    text-align: right;
+  }
+  .slider-val.orange { color: var(--orange); }
+
+  /* ── BUTTON ── */
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 11px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: white;
+  }
+  .btn-orange {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-soft) 100%);
+    color: white;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    font-size: 11px;
+    padding: 7px 14px;
+  }
+  .btn-ghost:hover { border-color: var(--red); color: var(--red); }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── RESULTS TABLE ── */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+    font-size: 13.5px;
+  }
+  .results-table thead tr {
+    background: var(--navy-deep);
+    color: white;
+  }
+  .results-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .results-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .results-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  .results-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .results-table tbody tr:hover { background: var(--off-white); }
+  .results-table td {
+    padding: 12px 16px;
+    color: #2a3555;
+  }
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .rank-1 { background: #fff2de; color: #b07d00; }
+  .rank-2 { background: #e8f0fb; color: var(--blue); }
+  .rank-3 { background: #f0f9f4; color: var(--green); }
+  .rank-other { background: var(--off-white); color: var(--muted); }
+
+  .score-pill {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: white;
+  }
+  .score-pill.orange {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-soft) 100%);
+  }
+  .score-pill.low { background: #eef0f5; color: var(--muted); }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .del-btn:hover { color: var(--red); background: #fff0ee; }
+
+  /* ── SCORE LIVE DISPLAY ── */
+  .score-live {
+    background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .score-live-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .score-live-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1;
+  }
+  .score-live-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+  .score-breakdown {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .score-part {
+    text-align: center;
+  }
+  .score-part-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--orange-soft);
+  }
+  .score-part-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── WARNING / TRAP CARD ── */
+  .trap-card {
+    background: #fff9f5;
+    border-radius: var(--radius);
+    border: 1.5px solid #f8d6b8;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .trap-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .trap-card p { font-size: 13px; color: #6b3a0a; line-height: 1.6; }
+  .trap-card strong { color: #b55a00; }
+
+  /* ── MOSCOW ── */
+  .moscow-entry-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .moscow-entry-row input[type="text"] { flex: 1; min-width: 180px; }
+  .moscow-entry-row select { min-width: 140px; }
+
+  .moscow-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  @media (max-width: 700px) { .moscow-board { grid-template-columns: 1fr; } }
+
+  .moscow-col {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .moscow-col-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .moscow-col-header.must  { background: var(--red); }
+  .moscow-col-header.should{ background: var(--orange); }
+  .moscow-col-header.could { background: var(--blue); }
+  .moscow-col-header.wont  { background: #707a8f; }
+  .moscow-col-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: white;
+  }
+  .moscow-col-header .desc { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .moscow-items {
+    background: var(--card);
+    padding: 14px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .moscow-item {
+    background: var(--off-white);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--navy-deep);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-left: 3px solid transparent;
+    animation: slideIn 0.2s ease;
+  }
+  .moscow-item.must   { border-left-color: var(--red); }
+  .moscow-item.should { border-left-color: var(--orange); }
+  .moscow-item.could  { border-left-color: var(--blue); }
+  .moscow-item.wont   { border-left-color: #707a8f; opacity: 0.75; }
+  .moscow-empty {
+    color: var(--muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 8px 4px;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── WSJF ── */
+  .wsjf-cod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 700px) { .wsjf-cod-grid { grid-template-columns: 1fr; } }
+
+  .wsjf-cod-total {
+    background: var(--off-white);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .wsjf-cod-total label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex: 1;
+  }
+  .wsjf-cod-total .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .site-header { padding: 28px 18px 0; }
+    .tabs-bar { overflow-x: auto; }
+    .tab-btn { padding: 12px 16px; font-size: 12px; white-space: nowrap; }
+    .main { padding: 20px 14px 48px; }
+    .calc-card { padding: 18px; }
+    .formula-text { font-size: 14px; }
+    .score-live-val { font-size: 36px; }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 28px;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* ── CHEAT SHEET TABLE ── */
+  .cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .cheat-table thead tr { background: var(--navy-deep); }
+  .cheat-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .cheat-table tbody tr { border-bottom: 1px solid var(--border); }
+  .cheat-table tbody tr:last-child { border-bottom: none; }
+  .cheat-table td { padding: 11px 16px; color: #2a3555; vertical-align: top; }
+  .cheat-table td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--blue);
+  }
+  .cheat-table tr:nth-child(even) { background: var(--off-white); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tag-blue   { background: #e5edfa; color: var(--blue); }
+  .tag-orange { background: #fdf0e2; color: var(--orange); }
+  .tag-green  { background: #e5f6ec; color: var(--green); }
+  .tag-gray   { background: #edf0f5; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-kicker">Interactive Toolkit</div>
+    <h1 class="header-title">Prioritization Frameworks</h1>
+    <p class="header-subtitle">NUST MISIS · Advanced Product Management · Day 3</p>
+    <nav class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab('ice', this)">ICE</button>
+      <button class="tab-btn" onclick="switchTab('rice', this)">RICE</button>
+      <button class="tab-btn" onclick="switchTab('wsjf', this)">WSJF</button>
+      <button class="tab-btn" onclick="switchTab('moscow', this)">MoSCoW</button>
+      <button class="tab-btn" onclick="switchTab('guide', this)">When to Use</button>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ════════════════════════════════ ICE ════════════════════════════════ -->
+<section id="tab-ice" class="tab-panel active">
+
+  <div class="theory-strip">
+    <div class="theory-card">
+      <h4>What ICE measures</h4>
+      <p>ICE trades precision for speed. <strong>Impact</strong> asks how much this moves your key metric. <strong>Confidence</strong> forces you to admit what you don't know. <strong>Ease</strong> is the inverse of effort — how quickly you can ship it. Multiply all three.</p>
+    </div>
+    <div class="theory-card orange">
+      <h4>The Subjectivity Trap</h4>
+      <p>Without a framework, prioritization becomes politics — HiPPO, loudest client, recency bias. <strong>Any framework is better than intuition alone.</strong> ICE doesn't eliminate subjectivity, but it makes it visible: when you score, you see <em>where</em> you're being subjective.</p>
+    </div>
+  </div>
+
+  <div class="formula-bar">
+    <span class="formula-label">Formula</span>
+    <span class="formula-text">
+      <span class="var">ICE</span>
+      <span class="op">=</span>
+      <span style="color:#9fbeff">Impact</span>
+      <span class="op">×</span>
+      <span style="color:#9fbeff">Confidence</span>
+      <span class="op">×</span>
+      <span style="color:#9fbeff">Ease</span>
+    </span>
+  </div>
+
+  <p class="section-title">Single Feature Scorer</p>
+  <div class="calc-card">
+    <div class="input-grid input-grid-2" style="margin-bottom:16px">
+      <div class="field">
+        <label>Feature name</label>
+        <input type="text" id="ice-name" placeholder="e.g. Close Friends for Stories">
+      </div>
+    </div>
+    <div class="input-grid input-grid-3">
+      <div class="field">
+        <label>Impact <span style="font-size:10px;color:var(--muted)">1–10</span></label>
+        <span class="hint">How much will this move the needle?</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="ice-impact" oninput="updateICE()">
+          <span class="slider-val" id="ice-impact-v">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confidence <span style="font-size:10px;color:var(--muted)">1–10</span></label>
+        <span class="hint">How certain are you about Impact &amp; Ease?</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="ice-conf" oninput="updateICE()">
+          <span class="slider-val" id="ice-conf-v">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ease <span style="font-size:10px;color:var(--muted)">1–10</span></label>
+        <span class="hint">How easy to implement? (inverse of effort)</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="ice-ease" oninput="updateICE()">
+          <span class="slider-val" id="ice-ease-v">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="score-live" id="ice-live">
+      <div>
+        <div class="score-live-label">ICE Score</div>
+        <div class="score-live-val" id="ice-result">125</div>
+        <div class="score-live-sub">Max possible: 1000</div>
+      </div>
+      <div class="score-breakdown">
+        <div class="score-part"><div class="score-part-val" id="ice-bd-i">5</div><div class="score-part-label">Impact</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">×</div>
+        <div class="score-part"><div class="score-part-val" id="ice-bd-c">5</div><div class="score-part-label">Confidence</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">×</div>
+        <div class="score-part"><div class="score-part-val" id="ice-bd-e">5</div><div class="score-part-label">Ease</div></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addICEItem()">+ Add to Comparison</button>
+    </div>
+  </div>
+
+  <p class="section-title">Feature Comparison</p>
+  <div class="calc-card" style="padding:0;overflow:hidden">
+    <div id="ice-table-wrap">
+      <div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>
+    </div>
+  </div>
+
+  <div class="trap-card" style="margin-top:20px">
+    <div class="trap-icon">⚠️</div>
+    <p><strong>ICE's Blind Spot:</strong> The Instagram example from the slides is instructive — "Close Friends" scores ICE 320 vs Reels' 189. Yet Instagram built Reels because it was <em>existential</em> against TikTok. ICE cannot capture strategic importance or audience reach. Use it for small teams and quick decisions under 10 features; upgrade to RICE when reach and effort precision matter.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ RICE ════════════════════════════════ -->
+<section id="tab-rice" class="tab-panel">
+
+  <div class="theory-strip">
+    <div class="theory-card">
+      <h4>The Industry Standard</h4>
+      <p>RICE is Intercom's framework and the de-facto default for product teams of 5–30 people. It adds <strong>Reach</strong> (how many users are actually impacted, not just exposed) and moves Effort to the denominator — penalising big bets more sharply than ICE's multiplicative Ease.</p>
+    </div>
+    <div class="theory-card orange">
+      <h4>Confidence is the Key Dimension</h4>
+      <p>The most common RICE mistake: defaulting Confidence to 100%. Per Kahneman's <em>Noise</em> (2021), two experienced PMs scoring the same backlog will produce wildly different priorities. <strong>If you haven't validated with clients, your Confidence is 50%.</strong> Honest confidence scoring halves inflated scores and forces real conversations.</p>
+    </div>
+  </div>
+
+  <div class="formula-bar">
+    <span class="formula-label">Formula</span>
+    <span class="formula-text">
+      <span class="var">RICE</span>
+      <span class="op">=</span>
+      <span class="denom">
+        <span class="top"><span style="color:#9fbeff">Reach</span> <span class="op" style="font-size:14px">×</span> <span style="color:#9fbeff">Impact</span> <span class="op" style="font-size:14px">×</span> <span style="color:#9fbeff">Confidence</span></span>
+        <span style="color:rgba(255,255,255,0.5)">Effort (person-weeks)</span>
+      </span>
+    </span>
+  </div>
+
+  <p class="section-title">Single Feature Scorer</p>
+  <div class="calc-card">
+    <div class="input-grid input-grid-2" style="margin-bottom:16px">
+      <div class="field">
+        <label>Feature name</label>
+        <input type="text" id="rice-name" placeholder="e.g. Sleep Timer">
+      </div>
+    </div>
+    <div class="input-grid input-grid-4">
+      <div class="field">
+        <label>Reach</label>
+        <span class="hint">Users/clients per quarter</span>
+        <input type="number" id="rice-reach" value="1000" min="1" oninput="updateRICE()">
+      </div>
+      <div class="field">
+        <label>Impact</label>
+        <span class="hint">3=massive · 2=high · 1=medium · 0.5=low · 0.25=minimal</span>
+        <select id="rice-impact" onchange="updateRICE()">
+          <option value="3">3 — Massive</option>
+          <option value="2">2 — High</option>
+          <option value="1" selected>1 — Medium</option>
+          <option value="0.5">0.5 — Low</option>
+          <option value="0.25">0.25 — Minimal</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Confidence</label>
+        <span class="hint">How validated is this estimate?</span>
+        <select id="rice-conf" onchange="updateRICE()">
+          <option value="1">100% — High (validated)</option>
+          <option value="0.8" selected>80% — Medium</option>
+          <option value="0.5">50% — Low (assumption)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Effort (person-weeks)</label>
+        <span class="hint">Engineering estimate</span>
+        <input type="number" id="rice-effort" value="4" min="0.5" step="0.5" oninput="updateRICE()">
+      </div>
+    </div>
+    <div class="score-live" id="rice-live">
+      <div>
+        <div class="score-live-label">RICE Score</div>
+        <div class="score-live-val" id="rice-result">200</div>
+        <div class="score-live-sub" id="rice-interp">Medium priority</div>
+      </div>
+      <div class="score-breakdown">
+        <div class="score-part"><div class="score-part-val" id="rice-bd-r">1000</div><div class="score-part-label">Reach</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">×</div>
+        <div class="score-part"><div class="score-part-val" id="rice-bd-i">1</div><div class="score-part-label">Impact</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">×</div>
+        <div class="score-part"><div class="score-part-val" id="rice-bd-c">80%</div><div class="score-part-label">Confidence</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">÷</div>
+        <div class="score-part"><div class="score-part-val" id="rice-bd-e">4</div><div class="score-part-label">Effort pw</div></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addRICEItem()">+ Add to Comparison</button>
+    </div>
+  </div>
+
+  <p class="section-title">Feature Comparison</p>
+  <div class="calc-card" style="padding:0;overflow:hidden">
+    <div id="rice-table-wrap">
+      <div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>
+    </div>
+  </div>
+
+  <div class="trap-card" style="margin-top:20px">
+    <div class="trap-icon">💡</div>
+    <p><strong>Spotify example from the slides:</strong> The "boring" Sleep Timer (R=10M, I=0.5, C=100%, E=2pw) scores <strong>RICE 2.5</strong> versus the "exciting" AI-Powered DJ (R=8M, I=2, C=50%, E=12pw) at <strong>RICE 0.67</strong> — 4× lower. RICE penalises ambitious bets with low confidence and high effort, which is exactly what you want in a resource-constrained roadmap.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ WSJF ════════════════════════════════ -->
+<section id="tab-wsjf" class="tab-panel">
+
+  <div class="theory-strip">
+    <div class="theory-card">
+      <h4>Weighted Shortest Job First</h4>
+      <p>WSJF comes from SAFe / Lean Agile. Its key insight: <strong>the cost of NOT doing something</strong> is often more important than its benefit. It captures urgency and time-criticality that RICE misses entirely — e.g. a shelf-life feature that must ship before summer.</p>
+    </div>
+    <div class="theory-card green">
+      <h4>When to use WSJF</h4>
+      <p>Use WSJF when there's a strong <strong>time dimension</strong>: regulatory deadlines, seasonal windows, competitive threats with a clock on them. It shines in SAFe environments with 30+ people. For smaller teams, RICE is simpler and usually sufficient.</p>
+    </div>
+  </div>
+
+  <div class="formula-bar">
+    <span class="formula-label">Formula</span>
+    <span class="formula-text">
+      <span class="var">WSJF</span>
+      <span class="op">=</span>
+      <span class="denom">
+        <span class="top"><span style="color:#9fbeff">Cost of Delay</span></span>
+        <span style="color:rgba(255,255,255,0.5)">Job Size</span>
+      </span>
+      <span class="op" style="font-size:13px;opacity:.6">where</span>
+      <span style="color:rgba(255,255,255,0.6);font-size:13px">CoD = UBV + Time Criticality + Risk Reduction</span>
+    </span>
+  </div>
+
+  <p class="section-title">Single Feature Scorer</p>
+  <div class="calc-card">
+    <div class="input-grid input-grid-2" style="margin-bottom:16px">
+      <div class="field">
+        <label>Feature name</label>
+        <input type="text" id="wsjf-name" placeholder="e.g. Expiry date feature before summer">
+      </div>
+    </div>
+
+    <p style="font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Cost of Delay Components <span style="color:var(--orange)">(1–10 each)</span></p>
+    <div class="wsjf-cod-grid">
+      <div class="field">
+        <label>User-Business Value</label>
+        <span class="hint">Direct value delivered to users / business</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="wsjf-ubv" oninput="updateWSJF()">
+          <span class="slider-val orange" id="wsjf-ubv-v">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Time Criticality</label>
+        <span class="hint">How much does delay hurt? (deadlines, seasonality)</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="wsjf-tc" oninput="updateWSJF()">
+          <span class="slider-val orange" id="wsjf-tc-v">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Risk Reduction</label>
+        <span class="hint">Does this reduce business/technical risk?</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" id="wsjf-rr" oninput="updateWSJF()">
+          <span class="slider-val orange" id="wsjf-rr-v">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="wsjf-cod-total">
+      <label>Cost of Delay (UBV + TC + RR)</label>
+      <span class="val" id="wsjf-cod">15</span>
+    </div>
+    <div class="input-grid input-grid-2">
+      <div class="field">
+        <label>Job Size (person-weeks)</label>
+        <span class="hint">Total effort to complete</span>
+        <input type="number" id="wsjf-js" value="3" min="0.5" step="0.5" oninput="updateWSJF()">
+      </div>
+    </div>
+
+    <div class="score-live" style="margin-top:20px">
+      <div>
+        <div class="score-live-label">WSJF Score</div>
+        <div class="score-live-val" id="wsjf-result">5.00</div>
+        <div class="score-live-sub" id="wsjf-interp">Higher = do sooner</div>
+      </div>
+      <div class="score-breakdown">
+        <div class="score-part"><div class="score-part-val" id="wsjf-bd-cod">15</div><div class="score-part-label">Cost of Delay</div></div>
+        <div class="score-part" style="color:rgba(255,255,255,0.3);font-size:20px;padding-top:6px">÷</div>
+        <div class="score-part"><div class="score-part-val" id="wsjf-bd-js">3</div><div class="score-part-label">Job Size pw</div></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="addWSJFItem()">+ Add to Comparison</button>
+    </div>
+  </div>
+
+  <p class="section-title">Feature Comparison</p>
+  <div class="calc-card" style="padding:0;overflow:hidden">
+    <div id="wsjf-table-wrap">
+      <div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ MOSCOW ════════════════════════════════ -->
+<section id="tab-moscow" class="tab-panel">
+
+  <div class="theory-strip">
+    <div class="theory-card">
+      <h4>Not a Scoring Model — a Classification</h4>
+      <p>MoSCoW doesn't rank features numerically. It forces a binary conversation: <em>without this, is the release broken?</em> Its power lies in the <strong>Won't Have</strong> category — explicitly committing to what you're NOT building this cycle, which removes the ambiguity that kills scopes.</p>
+    </div>
+    <div class="theory-card green">
+      <h4>Best Use: Scope Negotiation</h4>
+      <p>Use MoSCoW when negotiating scope with a client or stakeholder. After RICE-scoring your backlog, translate the top items to Must/Should for the presentation. The "Won't Have (this time)" framing is softer than "rejected" and preserves the relationship while holding the line.</p>
+    </div>
+  </div>
+
+  <p class="section-title">Add Features to Classify</p>
+  <div class="calc-card">
+    <div class="moscow-entry-row">
+      <input type="text" id="moscow-feature" placeholder="Feature name, e.g. SAP Integration">
+      <select id="moscow-cat">
+        <option value="must">Must Have</option>
+        <option value="should">Should Have</option>
+        <option value="could">Could Have</option>
+        <option value="wont">Won't Have (this cycle)</option>
+      </select>
+      <input type="text" id="moscow-note" placeholder="Rationale (optional)" style="flex:1.5">
+      <button class="btn btn-primary" onclick="addMoscow()">Add</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:-4px;padding-left:2px">
+      Tip: Use keyboard shortcut <kbd style="background:var(--off-white);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:11px">Enter</kbd> in the feature name field to add quickly.
+    </div>
+  </div>
+
+  <p class="section-title">Classification Board</p>
+  <div class="moscow-board" id="moscow-board">
+    <div class="moscow-col">
+      <div class="moscow-col-header must">
+        <div>
+          <h3>Must Have</h3>
+          <div class="desc">Without this, the release is broken</div>
+        </div>
+      </div>
+      <div class="moscow-items" id="moscow-must"><div class="moscow-empty">Nothing here yet</div></div>
+    </div>
+    <div class="moscow-col">
+      <div class="moscow-col-header should">
+        <div>
+          <h3>Should Have</h3>
+          <div class="desc">Important but not critical</div>
+        </div>
+      </div>
+      <div class="moscow-items" id="moscow-should"><div class="moscow-empty">Nothing here yet</div></div>
+    </div>
+    <div class="moscow-col">
+      <div class="moscow-col-header could">
+        <div>
+          <h3>Could Have</h3>
+          <div class="desc">Nice to have, if time permits</div>
+        </div>
+      </div>
+      <div class="moscow-items" id="moscow-could"><div class="moscow-empty">Nothing here yet</div></div>
+    </div>
+    <div class="moscow-col">
+      <div class="moscow-col-header wont">
+        <div>
+          <h3>Won't Have</h3>
+          <div class="desc">Explicitly out of scope (this time)</div>
+        </div>
+      </div>
+      <div class="moscow-items" id="moscow-wont"><div class="moscow-empty">Nothing here yet</div></div>
+    </div>
+  </div>
+
+  <div class="trap-card" style="margin-top:20px">
+    <div class="trap-icon">💡</div>
+    <p><strong>Combine frameworks:</strong> Use RICE to rank your backlog numerically, then translate the ranked list into MoSCoW categories to present the roadmap to your client. The frameworks solve different problems — RICE is for internal prioritization, MoSCoW is for stakeholder communication.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ GUIDE ════════════════════════════════ -->
+<section id="tab-guide" class="tab-panel">
+
+  <div class="theory-strip">
+    <div class="theory-card">
+      <h4>The Core Insight</h4>
+      <p>No single framework is universally best. The right choice depends on your <strong>team size, the number of features, and whether there's a time dimension</strong>. Misapplying WSJF in a 3-person startup is as harmful as using ICE when strategic reach matters.</p>
+    </div>
+    <div class="theory-card orange">
+      <h4>Start with RICE</h4>
+      <p>RICE is your default. Master it first. The <strong>Confidence dimension</strong> alone — if used honestly — will transform your prioritization by separating assumptions from validated data. ICE is a training wheel; WSJF is a specialist tool; MoSCoW is a communication layer on top of the others.</p>
+    </div>
+  </div>
+
+  <p class="section-title">Framework Selection Cheat Sheet</p>
+  <div class="calc-card" style="padding:0;overflow:hidden">
+    <table class="cheat-table">
+      <thead>
+        <tr>
+          <th>Framework</th>
+          <th>Best for</th>
+          <th>Strengths</th>
+          <th>Weaknesses</th>
+          <th>Team size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ICE</td>
+          <td>Brainstorms, quick decisions, &lt;10 features</td>
+          <td>Simple, fast, forces confidence check</td>
+          <td>No reach dimension, very subjective</td>
+          <td><span class="tag tag-green">2–5 people</span></td>
+        </tr>
+        <tr>
+          <td>RICE</td>
+          <td>Default for most product teams</td>
+          <td>Concrete units, reach forces audience thinking</td>
+          <td>Effort estimates can be gamed</td>
+          <td><span class="tag tag-blue">5–30 people</span></td>
+        </tr>
+        <tr>
+          <td>WSJF</td>
+          <td>Time-sensitive decisions, SAFe environments</td>
+          <td>Captures urgency and cost of delay</td>
+          <td>Complex, needs SAFe context to work well</td>
+          <td><span class="tag tag-orange">30+ people</span></td>
+        </tr>
+        <tr>
+          <td>MoSCoW</td>
+          <td>Scope negotiation with clients</td>
+          <td>Forces "won't have" conversation</td>
+          <td>Not quantitative, no ranking within groups</td>
+          <td><span class="tag tag-gray">Any size</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="section-title" style="margin-top:28px">Common Traps — RICE Edition</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="theory-card red">
+      <h4>Gaming the Reach</h4>
+      <p>"All 1000 users will see the button" ≠ "all 1000 users will be meaningfully affected." Reach = users whose outcomes actually change, not eyeballs.</p>
+    </div>
+    <div class="theory-card red">
+      <h4>Impact Inflation</h4>
+      <p>Everything is "massive" when the PM is excited. Use the scale honestly: <strong>3 = game-changer, 0.5 = nice to have.</strong> If everything is 3, the scale is broken.</p>
+    </div>
+    <div class="theory-card orange">
+      <h4>Ignoring Confidence</h4>
+      <p>The most common mistake. People skip it or default to 100%. If you haven't validated with clients, your confidence is <strong>50% by default.</strong></p>
+    </div>
+    <div class="theory-card orange">
+      <h4>Effort Sandbagging</h4>
+      <p>Engineers pad estimates; PMs underestimate them. Use historical data: how long did similar features <em>actually</em> take? Always anchor to past velocity.</p>
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-top:28px">The Strategy Hierarchy — Context for Prioritization</p>
+  <div class="calc-card">
+    <p style="font-size:13px;color:#3a4460;line-height:1.7;margin-bottom:16px">Every backlog decision should be traceable up the hierarchy. If it isn't, you're not prioritizing — you're just filling time.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="background:var(--navy-deep);color:white;padding:14px 20px;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;letter-spacing:0.5px">VISION</span>
+        <span style="font-size:12px;opacity:0.6">Why we exist · Doesn't change</span>
+      </div>
+      <div style="background:var(--blue);color:white;padding:14px 20px;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;letter-spacing:0.5px">STRATEGY</span>
+        <span style="font-size:12px;opacity:0.7">How we win · Updates annually</span>
+      </div>
+      <div style="background:var(--orange);color:white;padding:14px 20px;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;letter-spacing:0.5px">ROADMAP</span>
+        <span style="font-size:12px;opacity:0.8">What we build · Next 2–4 quarters</span>
+      </div>
+      <div style="background:#5a6480;color:white;padding:14px 20px;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;letter-spacing:0.5px">BACKLOG</span>
+        <span style="font-size:12px;opacity:0.7">Specific tasks · Updates every sprint</span>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px;font-style:italic">→ This is where your framework scores live. The backlog. But every score should reflect the strategy above it.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ── TAB SWITCHING ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── ICE ──
+const iceItems = [];
+
+function updateICE() {
+  const i = +document.getElementById('ice-impact').value;
+  const c = +document.getElementById('ice-conf').value;
+  const e = +document.getElementById('ice-ease').value;
+  document.getElementById('ice-impact-v').textContent = i;
+  document.getElementById('ice-conf-v').textContent   = c;
+  document.getElementById('ice-ease-v').textContent   = e;
+  const score = i * c * e;
+  document.getElementById('ice-result').textContent = score;
+  document.getElementById('ice-bd-i').textContent = i;
+  document.getElementById('ice-bd-c').textContent = c;
+  document.getElementById('ice-bd-e').textContent = e;
+}
+
+function addICEItem() {
+  const name  = document.getElementById('ice-name').value.trim() || 'Feature ' + (iceItems.length + 1);
+  const i = +document.getElementById('ice-impact').value;
+  const c = +document.getElementById('ice-conf').value;
+  const e = +document.getElementById('ice-ease').value;
+  iceItems.push({ name, i, c, e, score: i * c * e, id: Date.now() });
+  renderICETable();
+  document.getElementById('ice-name').value = '';
+}
+
+function removeICEItem(id) {
+  const idx = iceItems.findIndex(x => x.id === id);
+  if (idx !== -1) iceItems.splice(idx, 1);
+  renderICETable();
+}
+
+function renderICETable() {
+  const wrap = document.getElementById('ice-table-wrap');
+  if (!iceItems.length) {
+    wrap.innerHTML = '<div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>';
+    return;
+  }
+  const sorted = [...iceItems].sort((a, b) => b.score - a.score);
+  const maxScore = sorted[0].score;
+  let html = '<table class="results-table"><thead><tr><th>#</th><th>Feature</th><th>Impact</th><th>Confidence</th><th>Ease</th><th>ICE Score</th><th></th></tr></thead><tbody>';
+  sorted.forEach((item, idx) => {
+    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+    const pillClass = item.score === maxScore ? '' : item.score < maxScore * 0.4 ? ' low' : '';
+    html += `<tr>
+      <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
+      <td style="font-weight:500">${escHtml(item.name)}</td>
+      <td>${item.i}</td>
+      <td>${item.c}</td>
+      <td>${item.e}</td>
+      <td><span class="score-pill${pillClass}">${item.score}</span></td>
+      <td><button class="del-btn" onclick="removeICEItem(${item.id})" title="Remove">✕</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// ── RICE ──
+const riceItems = [];
+
+function updateRICE() {
+  const r = +document.getElementById('rice-reach').value || 0;
+  const i = +document.getElementById('rice-impact').value;
+  const c = +document.getElementById('rice-conf').value;
+  const e = +document.getElementById('rice-effort').value || 1;
+  const score = +((r * i * c) / e).toFixed(2);
+  document.getElementById('rice-result').textContent = score;
+  document.getElementById('rice-bd-r').textContent = r.toLocaleString();
+  document.getElementById('rice-bd-i').textContent = i;
+  document.getElementById('rice-bd-c').textContent = Math.round(c * 100) + '%';
+  document.getElementById('rice-bd-e').textContent = e;
+  const level = score > 500 ? '🔥 Top priority' : score > 100 ? '↑ High priority' : score > 20 ? '→ Medium priority' : '↓ Low priority';
+  document.getElementById('rice-interp').textContent = level;
+}
+
+function addRICEItem() {
+  const name = document.getElementById('rice-name').value.trim() || 'Feature ' + (riceItems.length + 1);
+  const r = +document.getElementById('rice-reach').value || 0;
+  const i = +document.getElementById('rice-impact').value;
+  const c = +document.getElementById('rice-conf').value;
+  const e = +document.getElementById('rice-effort').value || 1;
+  const score = +((r * i * c) / e).toFixed(2);
+  riceItems.push({ name, r, i, c, e, score, id: Date.now() });
+  renderRICETable();
+  document.getElementById('rice-name').value = '';
+}
+
+function removeRICEItem(id) {
+  const idx = riceItems.findIndex(x => x.id === id);
+  if (idx !== -1) riceItems.splice(idx, 1);
+  renderRICETable();
+}
+
+function renderRICETable() {
+  const wrap = document.getElementById('rice-table-wrap');
+  if (!riceItems.length) {
+    wrap.innerHTML = '<div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>';
+    return;
+  }
+  const sorted = [...riceItems].sort((a, b) => b.score - a.score);
+  const maxScore = sorted[0].score;
+  let html = '<table class="results-table"><thead><tr><th>#</th><th>Feature</th><th>Reach</th><th>Impact</th><th>Conf.</th><th>Effort pw</th><th>RICE Score</th><th></th></tr></thead><tbody>';
+  sorted.forEach((item, idx) => {
+    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+    const pillClass = item.score < maxScore * 0.3 ? ' low' : '';
+    html += `<tr>
+      <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
+      <td style="font-weight:500">${escHtml(item.name)}</td>
+      <td>${item.r.toLocaleString()}</td>
+      <td>${item.i}</td>
+      <td>${Math.round(item.c * 100)}%</td>
+      <td>${item.e}</td>
+      <td><span class="score-pill${pillClass}">${item.score}</span></td>
+      <td><button class="del-btn" onclick="removeRICEItem(${item.id})" title="Remove">✕</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// ── WSJF ──
+const wsjfItems = [];
+
+function updateWSJF() {
+  const ubv = +document.getElementById('wsjf-ubv').value;
+  const tc  = +document.getElementById('wsjf-tc').value;
+  const rr  = +document.getElementById('wsjf-rr').value;
+  const js  = +document.getElementById('wsjf-js').value || 1;
+  document.getElementById('wsjf-ubv-v').textContent = ubv;
+  document.getElementById('wsjf-tc-v').textContent  = tc;
+  document.getElementById('wsjf-rr-v').textContent  = rr;
+  const cod = ubv + tc + rr;
+  const score = +(cod / js).toFixed(2);
+  document.getElementById('wsjf-cod').textContent = cod;
+  document.getElementById('wsjf-result').textContent = score;
+  document.getElementById('wsjf-bd-cod').textContent = cod;
+  document.getElementById('wsjf-bd-js').textContent  = js;
+  const level = score > 10 ? '🔥 Do first — high urgency' : score > 5 ? '↑ High priority' : '→ Can wait';
+  document.getElementById('wsjf-interp').textContent = level;
+}
+
+function addWSJFItem() {
+  const name = document.getElementById('wsjf-name').value.trim() || 'Feature ' + (wsjfItems.length + 1);
+  const ubv = +document.getElementById('wsjf-ubv').value;
+  const tc  = +document.getElementById('wsjf-tc').value;
+  const rr  = +document.getElementById('wsjf-rr').value;
+  const js  = +document.getElementById('wsjf-js').value || 1;
+  const cod = ubv + tc + rr;
+  const score = +(cod / js).toFixed(2);
+  wsjfItems.push({ name, ubv, tc, rr, cod, js, score, id: Date.now() });
+  renderWSJFTable();
+  document.getElementById('wsjf-name').value = '';
+}
+
+function removeWSJFItem(id) {
+  const idx = wsjfItems.findIndex(x => x.id === id);
+  if (idx !== -1) wsjfItems.splice(idx, 1);
+  renderWSJFTable();
+}
+
+function renderWSJFTable() {
+  const wrap = document.getElementById('wsjf-table-wrap');
+  if (!wsjfItems.length) {
+    wrap.innerHTML = '<div class="empty-state">No features added yet. Score a feature above and click "Add to Comparison".</div>';
+    return;
+  }
+  const sorted = [...wsjfItems].sort((a, b) => b.score - a.score);
+  const maxScore = sorted[0].score;
+  let html = '<table class="results-table"><thead><tr><th>#</th><th>Feature</th><th>UBV</th><th>Time Crit.</th><th>Risk Red.</th><th>CoD</th><th>Job Size pw</th><th>WSJF</th><th></th></tr></thead><tbody>';
+  sorted.forEach((item, idx) => {
+    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+    const pillClass = (item.score < maxScore * 0.4 ? ' low' : ' orange');
+    html += `<tr>
+      <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
+      <td style="font-weight:500">${escHtml(item.name)}</td>
+      <td>${item.ubv}</td>
+      <td>${item.tc}</td>
+      <td>${item.rr}</td>
+      <td style="font-weight:600;color:var(--orange)">${item.cod}</td>
+      <td>${item.js}</td>
+      <td><span class="score-pill${pillClass}">${item.score}</span></td>
+      <td><button class="del-btn" onclick="removeWSJFItem(${item.id})" title="Remove">✕</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// ── MOSCOW ──
+const moscowItems = [];
+
+document.getElementById('moscow-feature').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addMoscow();
+});
+
+function addMoscow() {
+  const name = document.getElementById('moscow-feature').value.trim();
+  if (!name) { document.getElementById('moscow-feature').focus(); return; }
+  const cat  = document.getElementById('moscow-cat').value;
+  const note = document.getElementById('moscow-note').value.trim();
+  moscowItems.push({ name, cat, note, id: Date.now() });
+  document.getElementById('moscow-feature').value = '';
+  document.getElementById('moscow-note').value = '';
+  renderMoscow();
+  document.getElementById('moscow-feature').focus();
+}
+
+function removeMoscow(id) {
+  const idx = moscowItems.findIndex(x => x.id === id);
+  if (idx !== -1) moscowItems.splice(idx, 1);
+  renderMoscow();
+}
+
+function renderMoscow() {
+  const cats = ['must', 'should', 'could', 'wont'];
+  cats.forEach(cat => {
+    const items = moscowItems.filter(x => x.cat === cat);
+    const el = document.getElementById('moscow-' + cat);
+    if (!items.length) {
+      el.innerHTML = '<div class="moscow-empty">Nothing here yet</div>';
+      return;
+    }
+    el.innerHTML = items.map(item => `
+      <div class="moscow-item ${item.cat}">
+        <div>
+          <div style="font-weight:500;font-size:13px">${escHtml(item.name)}</div>
+          ${item.note ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">${escHtml(item.note)}</div>` : ''}
+        </div>
+        <button class="del-btn" onclick="removeMoscow(${item.id})" title="Remove">✕</button>
+      </div>`).join('');
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+updateICE();
+updateRICE();
+updateWSJF();
+</script>
+</body>
+</html>
