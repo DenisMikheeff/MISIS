@@ -8,11 +8,13 @@
         :root {
             --bg: #0f172a;
             --surface: #1e293b;
+            --surface-strong: #243247;
             --border: #334155;
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --accent: #38bdf8;
             --accent-hover: #7dd3fc;
+            --shadow: rgba(15, 23, 42, 0.35);
         }
 
         * {
@@ -63,12 +65,16 @@
             padding: 28px 32px;
             text-decoration: none;
             color: var(--text);
-            transition: border-color 0.2s, transform 0.2s;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
         }
 
-        .project-card:hover {
+        .project-card:hover,
+        .project-card:focus-visible {
             border-color: var(--accent);
             transform: translateY(-2px);
+            box-shadow: 0 12px 28px var(--shadow);
+            outline: none;
         }
 
         .project-card h2 {
@@ -81,6 +87,72 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             line-height: 1.5;
+        }
+
+        .project-card-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .project-card-header h2 {
+            margin-bottom: 0;
+        }
+
+        .dropdown-chevron {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.12);
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .project-card-dropdown.open .dropdown-chevron {
+            transform: rotate(180deg);
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent-hover);
+        }
+
+        .dropdown-menu {
+            display: grid;
+            gap: 8px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+        }
+
+        .dropdown-menu[hidden] {
+            display: none;
+        }
+
+        .dropdown-link {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--text);
+            background: rgba(148, 163, 184, 0.06);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            text-decoration: none;
+            font-size: 0.92rem;
+            transition: background 0.18s ease, border-color 0.18s ease;
+        }
+
+        .dropdown-link:hover,
+        .dropdown-link:focus-visible {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.4);
+            outline: none;
         }
 
         footer {
@@ -110,14 +182,58 @@
             <h2>Prioritization Frameworks</h2>
             <p>An overview of key product prioritization frameworks — RICE, MoSCoW, Kano, and others — with practical guidance on when and how to apply each.</p>
         </a>
-        <a href="supply-chain/" class="project-card">
-            <h2>Supply Chain Network</h2>
+
+        <div class="project-card project-card-dropdown" tabindex="0" role="button" aria-expanded="false" aria-controls="supply-chain-menu">
+            <div class="project-card-header">
+                <h2>Supply Chain Network</h2>
+                <span class="dropdown-chevron" aria-hidden="true">▾</span>
+            </div>
             <p>An interactive visualisation of the ВкусВилл supply chain network, mapping suppliers, distribution centres, and retail locations.</p>
-        </a>
+
+            <div id="supply-chain-menu" class="dropdown-menu" hidden>
+                <a class="dropdown-link" href="supply-chain/">Supply Chain Network</a>
+                <a class="dropdown-link" href="supply-chain/exam/">Exam Presentation</a>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>College of Economics &amp; Management · NUST MISIS</p>
     </footer>
+
+    <script>
+        const dropdownCard = document.querySelector('.project-card-dropdown');
+        const dropdownMenu = document.getElementById('supply-chain-menu');
+
+        function setDropdownState(isOpen) {
+            dropdownCard.classList.toggle('open', isOpen);
+            dropdownCard.setAttribute('aria-expanded', String(isOpen));
+            dropdownMenu.hidden = !isOpen;
+        }
+
+        dropdownCard.addEventListener('click', (event) => {
+            const target = event.target.closest('a');
+            if (target) {
+                return;
+            }
+            setDropdownState(dropdownMenu.hidden);
+        });
+
+        dropdownCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                setDropdownState(dropdownMenu.hidden);
+            }
+            if (event.key === 'Escape' && !dropdownMenu.hidden) {
+                setDropdownState(false);
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!dropdownCard.contains(event.target)) {
+                setDropdownState(false);
+            }
+        });
+    </script>
 </body>
 </html>
