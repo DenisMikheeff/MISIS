@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Scans root-level subdirectories that contain an index.html and regenerates
-the <main class="projects"> section of the root index.html.
+ the <main class="projects"> section of the root index.html.
 
 Each subfolder's index.html should include:
   <meta name="description" content="Card description shown on the home page.">
@@ -61,14 +61,43 @@ def extract_meta(html_path):
 
 def build_cards_html(projects):
     lines = ['    <main class="projects">']
+
     for folder, title, description in projects:
         safe_title = html.escape(title)
         safe_desc = html.escape(description)
-        lines.append(f'        <a href="{folder}/" class="project-card">')
-        lines.append(f"            <h2>{safe_title}</h2>")
-        if safe_desc:
-            lines.append(f"            <p>{safe_desc}</p>")
-        lines.append("        </a>")
+
+        if folder == "supply-chain":
+            lines.extend([
+                '        <details class="project-card project-card-dropdown">',
+                '            <summary>',
+                f'                <h2>{safe_title}</h2>',
+            ])
+
+            if safe_desc:
+                lines.append(f"                <p>{safe_desc}</p>")
+
+            lines.extend([
+                '                <span class="dropdown-hint">Click to choose a project</span>',
+                '            </summary>',
+                '            <div class="project-options">',
+                '                <a class="project-option" href="supply-chain/">',
+                '                    <strong>Supply Chain Network</strong>',
+                '                    <span>Explore the interactive VkusVill supply chain network.</span>',
+                '                </a>',
+                '                <a class="project-option" href="supply-chain/exam/">',
+                '                    <strong>Supply Chain Network — Exam</strong>',
+                '                    <span>Open the Supply Chain Network exam project.</span>',
+                '                </a>',
+                '            </div>',
+                '        </details>',
+            ])
+        else:
+            lines.append(f'        <a href="{folder}/" class="project-card">')
+            lines.append(f"            <h2>{safe_title}</h2>")
+            if safe_desc:
+                lines.append(f"            <p>{safe_desc}</p>")
+            lines.append("        </a>")
+
     lines.append("    </main>")
     return "\n".join(lines)
 
