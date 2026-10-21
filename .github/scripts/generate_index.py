@@ -77,7 +77,6 @@ def build_cards_html(projects):
                 lines.append(f"                <p>{safe_desc}</p>")
 
             lines.extend([
-                '                <span class="dropdown-hint">Click to choose a project</span>',
                 '            </summary>',
                 '            <div class="project-options">',
                 '                <a class="project-option" href="supply-chain/">',
